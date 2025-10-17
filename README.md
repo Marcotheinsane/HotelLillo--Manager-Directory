@@ -32,3 +32,10 @@ Mejorar satisfacción del cliente en un 40%
 Proporcionar información en tiempo real del estado del hotel
 
 El sistema está desarrollado bajo metodología Scrum y está específicamente diseñado para las necesidades de este hotel familiar, combinando funcionalidad robusta con usabilidad simple para el personal.
+
+
+# 1 paso para poder correr el programa 
+# requisistos tener msql cliente instanlar dependecia esoesifica para django mas sql : pip install "django==4.2.*"
+# 2 crear la base de datos en mysql y despues configurar el setings 
+# 3 crear migraciones
+# 4 correr migraciones
