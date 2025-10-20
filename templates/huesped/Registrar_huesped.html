@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Modal/Popup -->
+<div id="popupHuesped" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center p-6 border-b">
+            <h2 class="text-xl font-bold text-gray-800">Registrar Nuevo Huésped</h2>
+            <button onclick="cerrarPopup()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Formulario -->
+        <form method="POST" action="{% url 'huespedes:crear_huesped' %}" class="p-6">
+            {% csrf_token %}
+
+            <!-- Mostrar errores del formulario -->
+            {% if form.errors %}
+                <div class="mb-4 text-red-600">
+                    <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Campos del formulario -->
+            <div class="space-y-4">
+                {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-3 mt-6">
+                <button type="button" onclick="cerrarPopup()" 
+                        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition font-semibold">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

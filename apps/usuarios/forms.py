@@ -1,0 +1,59 @@
+from django import forms
+from .models import Huesped
+
+class HuespedForm(forms.ModelForm):
+    class Meta:
+        model = Huesped
+        fields = ['nombre', 'apellido', 'tipo_documento', 'numero_documento', 'email', 'telefono']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el apellido'}),
+            'tipo_documento': forms.Select(attrs={'class': 'form-control'}),
+            'numero_documento': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 12345678-9'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@ejemplo.com'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+56 9 1234 5678'}),
+        }
+
+    # ------------------------------------VALIDACIONES BASICAS  -----------------------------------------------------------------------
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip()
+        if not nombre:
+            raise forms.ValidationError("El nombre es obligatorio.")
+        if len(nombre) < 2:
+            raise forms.ValidationError("El nombre debe tener al menos 2 caracteres.")
+        return nombre
+
+    def clean_apellido(self):
+        apellido = self.cleaned_data.get('apellido', '').strip()
+        if not apellido:
+            raise forms.ValidationError("El apellido es obligatorio.")
+        if len(apellido) < 2:
+            raise forms.ValidationError("El apellido debe tener al menos 2 caracteres.")
+        return apellido
+
+    def clean_numero_documento(self):
+        numero = self.cleaned_data.get('numero_documento', '').strip()
+        if not numero:
+            raise forms.ValidationError("El número de documento es obligatorio.")
+        if len(numero) < 5:
+            raise forms.ValidationError("El número de documento es demasiado corto.")
+        return numero
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError("El correo electrónico es obligatorio.")
+        if not "@" in email or "." not in email:
+            raise forms.ValidationError("Ingrese un correo electrónico válido.")
+        return email
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono', '').strip()
+        if not telefono:
+            raise forms.ValidationError("El número de teléfono es obligatorio.")
+        if not telefono.replace("+", "").replace(" ", "").isdigit():
+            raise forms.ValidationError("El número de teléfono solo debe contener números.")
+        if len(telefono) < 8:
+            raise forms.ValidationError("El teléfono debe tener al menos 8 dígitos.")
+        return telefono
