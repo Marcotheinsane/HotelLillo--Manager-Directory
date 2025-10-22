@@ -7,16 +7,16 @@ function abrirPopupHuesped() {
     const height = 700;
     const left = (screen.width - width) / 2;
     const top = (screen.height - height) / 2;
-    
-//URL para poder llamarlo desde el formulario y del popup 
+
+    //URL para poder llamarlo desde el formulario y del popup 
     const url = '/huespedes/crear/';
-    
+
     const popup = window.open(
         url,
         "nuevoHuesped",
         `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
     );
-    
+
     // logica: validacion PARA poder ver si se renderizo la pagina correctamente
     if (popup) {
         const checkClosed = setInterval(function () {

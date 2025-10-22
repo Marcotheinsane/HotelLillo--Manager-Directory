@@ -36,3 +36,6 @@ class Huesped(models.Model):
     telefono = models.CharField(max_length=15, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     
+
+    def __str__(self) -> str:
+        return f"{self.nombre} {self.apellido}"
