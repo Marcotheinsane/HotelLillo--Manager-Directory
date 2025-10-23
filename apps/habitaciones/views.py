@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from forms import HabitacionForm
+from .forms import HabitacionForm
 from django.shortcuts import redirect
 
 def registrar_habitacion(request):
