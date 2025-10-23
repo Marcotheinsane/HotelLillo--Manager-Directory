@@ -9,5 +9,6 @@ urlpatterns = [
     # urls para uso en los templates
     path('Hacer_recervas/', vr.Registrar_reserva, name='Hacer_Reservas'),
     # urls de apps - CORREGIDO
-    path('huespedes/', include('apps.usuarios.urls')), 
+    path('huespedes/', include('apps.usuarios.urls')),
+    path('habitaciones/', include('apps.habitaciones.urls')),
 ]

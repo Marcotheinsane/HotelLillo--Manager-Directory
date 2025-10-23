@@ -7,11 +7,7 @@ def registrar_habitacion(request):
         form = HabitacionForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('listar_habitaciones')
+            return redirect('/')
     else:
         form = HabitacionForm()
-    return render(request, 'habitaciones/registrar.html', {'form': form})
-
-def listar_habitaciones(request):
-    habitaciones = Habitacion.objects.all()
-    return render(request, 'habitaciones/listar.html', {'habitaciones': habitaciones})
+    return render(request, 'registrar.html', {'form': form})
