@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
-from .models import Habitacion
-from .forms import HabitacionForm
+from django.shortcuts import render
+from forms import HabitacionForm
+from django.shortcuts import redirect
 
 def registrar_habitacion(request):
     if request.method == 'POST':
