@@ -21,12 +21,12 @@ class Perfil_empleado(models.Model):
     def __str__(self):
         return f"{self.perfil_empleado} - {self.nombre} - {self.rol}"
 
-# PERFIL de huesped con datos obligatorios
+
 class Huesped(models.Model):
     TIPO_DOCUMENTO = (
         ('rut', 'RUT'),
         ('pasaporte', 'Pasaporte'),
-    )# la razon de de usar plantillas es para que solo se puedan escoger solo 2 opciones con choice
+    )
     
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)

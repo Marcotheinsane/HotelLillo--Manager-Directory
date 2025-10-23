@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from .models import Huesped
 
 class HuespedForm(forms.ModelForm):
@@ -57,3 +58,18 @@ class HuespedForm(forms.ModelForm):
         if len(telefono) < 8:
             raise forms.ValidationError("El teléfono debe tener al menos 8 dígitos.")
         return telefono
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'Nombre de usuario'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'Contraseña'
+        })
+    )

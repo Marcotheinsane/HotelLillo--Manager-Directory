@@ -10,4 +10,7 @@ urlpatterns = [
     path('Hacer_recervas/', vr.Registrar_reserva, name='Hacer_Reservas'),
     # urls de apps - CORREGIDO
     path('huespedes/', include('apps.usuarios.urls')), 
+    # urls de autenticación
+    path('login/', vi.login_view, name='login'),
+    path('logout/', vi.logout_view, name='logout'),
 ]
