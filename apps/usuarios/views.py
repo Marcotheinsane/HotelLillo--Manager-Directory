@@ -26,8 +26,9 @@ def registro_usuario(request):
 
 
 def listar_huespedes(request):
-    from .models import Huesped
     huespedes = Huesped.objects.all().order_by('-fecha_registro')
+
+
     return render(request, 'huesped/listar_huespedes.html', {'huespedes': huespedes})
 
 def editar_huesped(request, pk):
@@ -44,7 +45,7 @@ def editar_huesped(request, pk):
     else:
         form = HuespedForm(instance=huesped)  # Precarga los datos existentes 
 
-    return render(request, 'huesped/editar_huesped.html', {'form': form, 'huesped': huesped})
+    return render(request, 'huesped/listar_huespedes.html', {'form': form, 'huesped': huesped})
 
 
 # Usuarios- Login y Logout de administradores y empleados
@@ -82,7 +83,7 @@ def crear_huesped(request):
         form = HuespedForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('home.html') 
+            return redirect('home') 
     
     else:
         form = HuespedForm()
