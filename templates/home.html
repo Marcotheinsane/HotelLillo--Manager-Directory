@@ -1,4 +1,5 @@
 {% extends "base.html" %} 
+{% extends "base.html" %}
 
 {% block title %}Inicio - Hotel Lillo{% endblock %}
 
@@ -9,6 +10,10 @@
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         <a href="{% url 'Hacer_Reservas' %}" class="bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
+
+        <!-- Hacer una Reserva -->
+        <a href="{% url 'Hacer_Reservas' %}"
+           class="bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
             <div class="flex flex-col items-center text-white">
                 <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
                     <i class="fas fa-calendar-plus text-4xl"></i>
@@ -18,6 +23,10 @@
         </a>
         
         <a href="#" class="bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
+
+        <!-- Realizar Check-In -->
+        <a href="#"
+           class="bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
             <div class="flex flex-col items-center text-white">
                 <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
                     <i class="fas fa-key text-4xl"></i>
@@ -25,8 +34,26 @@
                 <h3 class="text-lg font-semibold">Realizar Check-In</h3>
             </div>
         </a>
+<<<<<<< HEAD
         
         <a href="#" class="bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
+=======
+
+        <!-- Ver Estado de Habitaciones -->
+        <a href="{% url 'consultar_habitaciones' %}"
+           class="bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block text-white">
+            <div class="flex flex-col items-center">
+                <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
+                    <i class="fas fa-bed text-4xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold">Ver Estado de Habitaciones</h3>
+            </div>
+        </a>
+
+        <!-- Realizar Check-Out -->
+        <a href="#"
+           class="bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
+>>>>>>> 23b9575 (Avance CRUD con función de registro)
             <div class="flex flex-col items-center text-white">
                 <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
                     <i class="fas fa-suitcase-rolling text-4xl"></i>
@@ -34,6 +61,7 @@
                 <h3 class="text-lg font-semibold">Realizar Check-Out</h3>
             </div>
         </a>
+<<<<<<< HEAD
         
         <a href="#" class="bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
             <div class="flex flex-col items-center text-white">
@@ -56,3 +84,9 @@
     </div>
 </div>
 {% endblock %}
+=======
+
+    </div>
+</div>
+{% endblock %}
+>>>>>>> 23b9575 (Avance CRUD con función de registro)

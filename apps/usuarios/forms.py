@@ -1,7 +1,12 @@
 from django import forms
+<<<<<<< HEAD
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import Huesped, Perfil_empleado
+=======
+from django.contrib.auth.forms import AuthenticationForm
+from .models import Huesped
+>>>>>>> 23b9575 (Avance CRUD con función de registro)
 
 class HuespedForm(forms.ModelForm):
     class Meta:
@@ -73,6 +78,7 @@ class LoginForm(AuthenticationForm):
             'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
             'placeholder': 'Contraseña'
         })
+<<<<<<< HEAD
     )
 
 class RegistroEmpleadoForm(UserCreationForm):
@@ -139,3 +145,6 @@ class RegistroEmpleadoForm(UserCreationForm):
                 rut=self.cleaned_data['rut']
             )
         return user
+=======
+    )
+>>>>>>> 23b9575 (Avance CRUD con función de registro)

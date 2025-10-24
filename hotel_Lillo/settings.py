@@ -88,6 +88,18 @@ DATABASES = {
 }
 
 
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'hotel_lillo',
+        'USER': 'root',         # o 'hotel_user' si creaste uno
+        'PASSWORD': '',         # tu contraseña (si pusiste una)
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

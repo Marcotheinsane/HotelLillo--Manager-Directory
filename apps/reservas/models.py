@@ -4,11 +4,15 @@ from django.db import models
 from apps.usuarios.models import Huesped
 from apps.habitaciones.models import Habitacion
 
+#from app.habitaciones.models import Habitaciones ---cuando se implemente
 
 class RegistroReservas(models.Model):
     ESTADO_CHOICES = [
         ("pendiente", "Pendiente"),
         ("confirmada", "Confirmada"), 
+        ("confirmada", "Confirmada"),
+        ("checkin", "Check-in"), 
+        ("checkout", "Check-out"), 
         ("cancelada", "Cancelada")
     ]
     
@@ -35,6 +39,7 @@ class RegistroReservas(models.Model):
         Huesped,
         on_delete=models.CASCADE
     )
+<<<<<<< HEAD
     Habitaciones = models.ForeignKey(
         Habitacion,
         on_delete=models.CASCADE,
@@ -50,3 +55,10 @@ class RegistroReservas(models.Model):
 def _str_(self):
         return f"Reserva de {self.Huespedes.nombre if self.Huespedes else 'N/A'} ({self.estado_reserva} )"
     
+=======
+# Este modulo del cangri aun no esta terminado entonces se referencia como cadena hace que se pueda llamar de forma tardia y no genere errores
+    numero_habitacion_temporal = models.CharField(max_length=10, null=True, blank=True)
+    
+def __str__(self):
+        return f"Reserva de {self.Huespedes.nombre if self.Huespedes else 'N/A'} ({self.estado_reserva})"
+>>>>>>> 23b9575 (Avance CRUD con función de registro)

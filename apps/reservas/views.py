@@ -5,6 +5,8 @@ from .forms import FormularioReservas, FormularioCancelacion
 from .models import RegistroReservas 
 from apps.habitaciones.models import Habitacion 
 
+from django.shortcuts import render
+from .forms import FormularioReservas
 # Create your views here.
 def Registrar_reserva(request):
     if request.method == "POST":
@@ -72,3 +74,4 @@ def cancelar_reserva(request, reserva_id):
         'form': form
     }
     return render(request, 'Reservas/confirmar_cancelacion.html', context)
+    return render(request, 'Reservas/Registro_reservas.html', {'form': form})

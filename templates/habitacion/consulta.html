@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-6">
+    <h2 class="text-2xl font-semibold mb-4">Consulta de Habitaciones</h2>
+
+    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-4 py-2 text-left">Número</th>
+                <th class="px-4 py-2 text-left">Tipo</th>
+                <th class="px-4 py-2 text-left">Capacidad</th>
+                <th class="px-4 py-2 text-left">Tarifa</th>
+                <th class="px-4 py-2 text-left">Estado</th>
+                <th class="px-4 py-2 text-left">Descripción</th>
+                <th class="px-4 py-2 text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hab in habitaciones %}
+            <tr class="border-t hover:bg-gray-50">
+                <td class="px-4 py-2">{{ hab.numero }}</td>
+                <td class="px-4 py-2">{{ hab.tipo }}</td>
+                <td class="px-4 py-2">{{ hab.capacidad }}</td>
+                <td class="px-4 py-2">${{ hab.tarifa }}</td>
+                <td class="px-4 py-2 flex items-center">
+                    {% if hab.estado == 'Disponible' %}
+                        <span class="w-3 h-3 bg-green-500 rounded-full inline-block mr-2"></span>Disponible
+                    {% elif hab.estado == 'Ocupada' %}
+                        <span class="w-3 h-3 bg-red-500 rounded-full inline-block mr-2"></span>Ocupada
+                    {% elif hab.estado == 'Limpieza' %}
+                        <span class="w-3 h-3 bg-yellow-400 rounded-full inline-block mr-2"></span>Limpieza
+                    {% elif hab.estado == 'Mantenimiento' %}
+                        <span class="w-3 h-3 bg-gray-500 rounded-full inline-block mr-2"></span>Mantenimiento
+                    {% else %}
+                        <span class="w-3 h-3 bg-blue-400 rounded-full inline-block mr-2"></span>{{ hab.estado }}
+                    {% endif %}
+                </td>
+                <td class="px-4 py-2">{{ hab.descripcion }}</td>
+                <td class="px-4 py-2 text-center">
+                    <a href="#" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Ver info</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="px-4 py-6 text-center text-gray-500">No hay habitaciones registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

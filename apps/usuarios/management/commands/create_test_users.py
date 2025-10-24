@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23b9575 (Avance CRUD con función de registro)
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from apps.usuarios.models import Perfil_empleado

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -5,12 +6,21 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Perfil_empleado, Huesped
 from .forms import HuespedForm, LoginForm, RegistroEmpleadoForm
+=======
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Perfil_empleado, Huesped
+from .forms import HuespedForm, LoginForm
+>>>>>>> 23b9575 (Avance CRUD con función de registro)
 # Create your views here.
 
 @login_required
 def home(request):
     return render(request,'home.html')
 
+<<<<<<< HEAD
 def registro_usuario(request):
     if request.method == 'POST':
         form = RegistroEmpleadoForm(request.POST)
@@ -24,6 +34,8 @@ def registro_usuario(request):
         form = RegistroEmpleadoForm()
     return render(request, 'usuarios/registro.html', {'form': form})
 
+=======
+>>>>>>> 23b9575 (Avance CRUD con función de registro)
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -64,6 +76,7 @@ def crear_huesped(request):
         form = HuespedForm()
     
     return render(request, 'huesped/Registrar_huesped.html', {'form': form})
+<<<<<<< HEAD
 
 def is_admin(user):
     try:
@@ -89,3 +102,5 @@ def eliminar_usuario(request, user_id):
             messages.error(request, 'No puedes eliminarte a ti mismo.')
         return redirect('usuarios:lista_usuarios')
     return redirect('usuarios:lista_usuarios')
+=======
+>>>>>>> 23b9575 (Avance CRUD con función de registro)
