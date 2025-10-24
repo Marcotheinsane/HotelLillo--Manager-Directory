@@ -10,4 +10,4 @@ def registrar_habitacion(request):
             return redirect('/')
     else:
         form = HabitacionForm()
-    return render(request, 'registrar.html', {'form': form})
+    return render(request, 'habitacion/registrar.html', {'form': form})

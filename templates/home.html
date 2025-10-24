@@ -44,6 +44,15 @@
             </div>
         </a>
 
+        <a href="{% url 'lista_reservas' %}" class="bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
+            <div class="flex flex-col items-center text-white">
+                <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
+                    <i class="fas fa-trash-alt text-4xl"></i> 
+                </div>
+                <h3 class="text-lg font-semibold">Cancelar Reserva</h3>
+            </div>
+        </a>
+
     </div>
 </div>
 {% endblock %}
