@@ -43,4 +43,7 @@ El sistema está desarrollado bajo metodología Scrum y está específicamente d
 # lunes 20 se implemento formulario de huespedes validaciones en js y implementacion en el template del registro de huespedes 
 
 # jueves 23 se implementa modulo de ingreso de habitaciones, testo pendiente pues no hay forma de acceder sin poder entrar como admin. -Mitsuki
+
 # jueves 23, testeo funcional, se crea un nuevo html y espacio en el navbar para testear el funcionamiento de la insercion <-- Crear una card personalizada y arreglar el forms para que se vea mejor -Mitsuki
+
+# jueves 23, se implementó el sistema de acceso incluyendo login y logout, con la creación de un archivo login.html, tambíen se agregó un registro de nuevos usuarios en la interfaz del login con la creación de dos archivos html: lista_usuarios.html y registro.html. Por último se integró una función de eliminación de usuarios registrados, la cual solo puede cumplir el usuario admin. -Rorro

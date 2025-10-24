@@ -9,7 +9,7 @@ urlpatterns = [
     # urls para uso en los templates
     path('Hacer_recervas/', vr.Registrar_reserva, name='Hacer_Reservas'),
     # urls de apps
-    path('huespedes/', include('apps.usuarios.urls')),
+    path('usuarios/', include('apps.usuarios.urls')),
     path('habitaciones/', include('apps.habitaciones.urls')),
     path('login/', vi.login_view, name='login'),
     path('logout/', vi.logout_view, name='logout')

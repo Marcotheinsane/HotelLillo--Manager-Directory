@@ -1,6 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from .models import Huesped
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
+from .models import Huesped, Perfil_empleado
 
 class HuespedForm(forms.ModelForm):
     class Meta:
@@ -73,3 +74,68 @@ class LoginForm(AuthenticationForm):
             'placeholder': 'Contraseña'
         })
     )
+
+class RegistroEmpleadoForm(UserCreationForm):
+    ROLES = (
+        ('recepcionista', 'Recepcionista'),
+    )
+    
+    nombre = forms.CharField(
+        max_length=40,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'Nombre completo'
+        })
+    )
+    rut = forms.CharField(
+        max_length=12,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'RUT (ej: 12345678-9)'
+        })
+    )
+    rol = forms.ChoiceField(
+        choices=ROLES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'correo@ejemplo.com'
+        })
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'nombre', 'email', 'rut', 'rol', 'password1', 'password2')
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                'placeholder': 'Nombre de usuario'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget.attrs.update({
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'Contraseña'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            'placeholder': 'Confirmar contraseña'
+        })
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            Perfil_empleado.objects.create(
+                perfil_empleado=user,
+                nombre=self.cleaned_data['nombre'],
+                rol=self.cleaned_data['rol'],
+                rut=self.cleaned_data['rut']
+            )
+        return user

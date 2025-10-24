@@ -27,6 +27,9 @@
                 <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Reportes</a>
                 <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">huespedes</a>
                 <a href="{% url 'registrar_habitacion' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Habitaciones</a>
+                {% if user.is_authenticated and user.perfil_empleado.rol == 'administrador' %}
+                <a href="{% url 'usuarios:lista_usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Gestionar Usuarios</a>
+                {% endif %}
             </div>
             </div>
         </div>
