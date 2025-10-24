@@ -5,95 +5,85 @@
 
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
-        
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            </div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Nueva Reserva</h1>
-            <p class="text-gray-600">Complete la información para crear una nueva reserva</p>
-        </div>
-        {% if messages %}
-            <div class="mb-6">
-                {% for message in messages %}
-                    <div class="{% if message.tags == 'success' %}bg-green-50 border-l-4 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-700{% else %}bg-blue-50 border-l-4 border-blue-500 text-blue-700{% endif %} p-4 rounded-r-lg mb-3">
-                        <div class="flex items-center">
-                        <p class="text-sm font-medium">{{ message }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-200">
-                <button type="button" 
-                        onclick="abrirPopupHuesped()"
-                        class="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-medium px-6 py-3 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                    </svg>
-                    <span>Crear Nuevo Huésped</span>
-                </button>
-            </div>
+  <div class="max-w-3xl mx-auto">
 
-<!----------------------- Formulario ------------------------------------------------------------->
-            <form method="post" class="p-8">
-                {% csrf_token %}
-                
-                <!-- Mostrar errores generales -->
-                {% if form.non_field_errors %}
-                    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
-                            <p class="text-red-700 text-sm">{{ form.non_field_errors }}</p>
-                        </div>
-                    </div>
-                {% endif %}
-                
-                <!-- Campos del formulario del insano hotel Lillo -->
-                <div class="space-y-6">
-                    {% for field in form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                {{ field.label }}
-                            </label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                    {{ field.errors.0 }}
-                                </p>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- Botones aqui o vuelve al home o crea la reserva -->
-                <div class="flex gap-4 mt-8">
-                    <button type="button" 
-                            onclick="history.back()"
-                            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-all duration-200 border border-gray-200">
-                        Cancelar
-                    </button>
-                    <button type="submit" 
-                            class="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-200 shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Crear Reserva
-                    </button>
-                </div>
-            </form>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <form method="post" id="form-reserva" class="p-8">
+        {% csrf_token %}
+
+        <div class="space-y-6">
+          {# --- Campo Tipo de Habitación con data-url --- #}
+          <div>
+            <label for="id_Tipo_Habitacion" class="block text-sm font-semibold text-gray-700 mb-2">
+              Tipo de Habitación
+            </label>
+            {{ form.Tipo_Habitacion.as_widget|safe }}
+          </div>
+
+          {# --- Campo Habitación (se llenará con AJAX) --- #}
+          <div>
+            <label for="id_Habitaciones" class="block text-sm font-semibold text-gray-700 mb-2">
+              Habitación
+            </label>
+            {{ form.Habitaciones.as_widget|safe }}
+          </div>
+
+          {# --- Resto de los campos --- #}
+          <div>
+            <label for="id_Huespedes" class="block text-sm font-semibold text-gray-700 mb-2">
+              Huésped
+            </label>
+            {{ form.Huespedes }}
+          </div>
+
+          <div>
+            <label for="id_fecha_check_in" class="block text-sm font-semibold text-gray-700 mb-2">
+              Fecha Check-in
+            </label>
+            {{ form.fecha_check_in }}
+          </div>
+
+          <div>
+            <label for="id_fecha_check_out" class="block text-sm font-semibold text-gray-700 mb-2">
+              Fecha Check-out
+            </label>
+            {{ form.fecha_check_out }}
+          </div>
+
+          <div>
+            <label for="id_estado_reserva" class="block text-sm font-semibold text-gray-700 mb-2">
+              Estado de la Reserva
+            </label>
+            {{ form.estado_reserva }}
+          </div>
+
+          <div>
+            <label for="id_Estado_Habitacion" class="block text-sm font-semibold text-gray-700 mb-2">
+              Estado de la Habitación
+            </label>
+            {{ form.Estado_Habitacion }}
+          </div>
         </div>
+
+        <div class="flex gap-4 mt-8">
+          <button type="button" onclick="history.back()"
+                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold border border-gray-200">
+            Cancelar
+          </button>
+          <button type="submit"
+                  class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Crear Reserva
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
-<script src="{% static 'js/huespedes.js' %}"></script>
+<script src="{% static 'js/reservas.js' %}"></script>
+
+
 {% endblock %}

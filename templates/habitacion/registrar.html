@@ -1,12 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<h2>Registrar nueva habitación</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Guardar</button>
-</form>
-
+<div class="max-w-2xl mx-auto bg-white p-8 mt-10 shadow-lg rounded-2xl">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Registrar nueva habitación</h2>
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit"
+      class="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition">
+      Guardar Habitación
+    </button>
+  </form>
+</div>
 {% endblock %}
+ 

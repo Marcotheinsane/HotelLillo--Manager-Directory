@@ -2,14 +2,13 @@ from django.db import models
 
 #modulos externos
 from apps.usuarios.models import Huesped
-#from app.habitaciones.models import Habitaciones ---cuando se implemente
+from apps.habitaciones.models import Habitacion
+
 
 class RegistroReservas(models.Model):
     ESTADO_CHOICES = [
         ("pendiente", "Pendiente"),
-        ("confirmada", "Confirmada"),
-        ("checkin", "Check-in"), 
-        ("checkout", "Check-out"), 
+        ("confirmada", "Confirmada"), 
         ("cancelada", "Cancelada")
     ]
     
@@ -28,8 +27,18 @@ class RegistroReservas(models.Model):
         Huesped,
         on_delete=models.CASCADE
     )
-# Este modulo del cangri aun no esta terminado entonces se referencia como cadena hace que se pueda llamar de forma tardia y no genere errores
-    numero_habitacion_temporal = models.CharField(max_length=10, null=True, blank=True)
+    Habitaciones = models.ForeignKey(
+        Habitacion,
+        on_delete=models.CASCADE
+    )
+    Estado_Habitacion =models.CharField(
+        choices=Habitacion.ESTADO_CHOICES,
+        max_length=15,
+    )   
+    Tipo_Habitacion = models.CharField(
+        choices=Habitacion.TIPO_CHOICES,    
+        max_length=50,
+    )
     
 def __str__(self):
-        return f"Reserva de {self.Huespedes.nombre if self.Huespedes else 'N/A'} ({self.estado_reserva})"
+        return f"Reserva de {self.Huespedes.nombre if self.Huespedes else 'N/A'} ({self.estado_reserva} )"

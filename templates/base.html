@@ -1,86 +1,73 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hotel Lillo{% endblock %}</title>
-    
-        <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
 
-    <header>
-        <nav class="relative bg-gray-800/50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10">
-    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <div class="relative flex h-16 items-center justify-between">
-        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-        </div>
-        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div class="flex shrink-0 items-center">
-            <img src="/static/img/logo.png" alt="Your Company" class="h-12 w-auto" />
-            </div>
-            <div class="hidden sm:ml-6 sm:block">
-            <div class="flex space-x-4">
-                <!--" -->
-                <a href="{% url 'home' %}" aria-current="page" class="rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white">home</a>
-                <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">reservas</a>
-                <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">check-in</a>
-                <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Reportes</a>
-                <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">huespedes</a>
-                <a href="{% url 'registrar_habitacion' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Habitaciones</a>
-            </div>
-            </div>
-        </div>
-        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <button type="button" class="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
-            <span class="absolute -inset-1.5"></span>
-            <span class="sr-only"> Notificaiones</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
-                <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            </button>
+    <!-- NAVBAR -->
+    <header class="backdrop-blur-md bg-gray-800/70 border-b border-white/10 sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <img src="{% static 'img/logo.png' %}" alt="Hotel Lillo" class="h-12 w-auto">
+                    <span class="text-white font-semibold text-lg tracking-wide">Hotel Lillo</span>
+                </div>
 
-            <!-- Panel del administrador i/o usuario -->
-            {% if user.is_authenticated %}
-            <div class="relative ml-3">
+                <!-- Menú principal -->
+                <div class="hidden sm:flex space-x-4">
+                    <a href="{% url 'home' %}" class="text-white bg-gray-950/50 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-600/60 transition">Home</a>
+                    <a href="{% url 'reservas:listar_reservas' %}" class="text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition">Reservas</a>
+                    <a href="#" class="text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition">Check-in</a>
+                    <a href="#" class="text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition">Reportes</a>
+                    <a href="{% url 'usuarios:listar_huespedes' %}" class="text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition">Huéspedes</a>
+                    <a href="{% url 'registrar_habitacion' %}" class="text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition">Habitaciones</a>
+                </div>
+
+                <!-- Usuario -->
                 <div class="flex items-center space-x-4">
-                    <span class="text-white text-sm">Bienvenido, {{ user.first_name|default:user.username }}</span>
-                    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        Cerrar Sesión
-                    </a>
+                    <button type="button" class="text-gray-400 hover:text-white relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+                        </svg>
+                    </button>
+
+                    {% if user.is_authenticated %}
+                    <span class="text-sm text-white">Hola, {{ user.first_name|default:user.username }}</span>
+                    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition">Cerrar sesión</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition">Iniciar sesión</a>
+                    {% endif %}
                 </div>
             </div>
-            {% else %}
-            <div class="relative ml-3">
-                <a href="{% url 'login' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                    Iniciar Sesión
-                </a>
-            </div>
-            {% endif %}
-        </div>
-        </div>
-    </div>
-
-    <el-disclosure id="mobile-menu" hidden class="block sm:hidden">
-    </el-disclosure>
-    </nav>
+        </nav>
     </header>
-    <body>
-    {%block content%}
 
-    {%  endblock %}
+    <!-- Contenido dinámico -->
+    <main class="min-h-screen px-4 sm:px-6 lg:px-8 mt-6">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- FOOTER -->
     <footer class="bg-gray-800 text-white py-8 mt-12">
-        <div class="container mx-auto px-4">
-            <div class="text-center">
-                <p>&copy; 2024 Hotel Lillo. Todos los derechos reservados.</p>
-                <div class="mt-4">
-                    <a href="#" class="text-gray-300 hover:text-white mx-2">Políticas de Privacidad ®</a>
-                    <a href="#" class="text-gray-300 hover:text-white mx-2">Términos de Servicio</a>
-                    <a href="#" class="text-gray-300 hover:text-white mx-2">Contacto 133 </a>
-                </div>
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p>&copy; 2024 Hotel Lillo. Todos los derechos reservados.</p>
+            <div class="mt-3 space-x-4">
+                <a href="#" class="text-gray-300 hover:text-white text-sm">Políticas de Privacidad ®</a>
+                <a href="#" class="text-gray-300 hover:text-white text-sm">Términos de Servicio</a>
+                <a href="#" class="text-gray-300 hover:text-white text-sm">Contacto 133</a>
             </div>
         </div>
     </footer>
 
-    <!-- Script JS -->
-<script src="{% static 'js/huesped.js' %}"></script>
-    </body>
+    <script src="{% static 'js/huesped.js' %}"></script>
+
+</body>
+</html>

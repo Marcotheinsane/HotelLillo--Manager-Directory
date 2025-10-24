@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow mt-10">
+    <h2 class="text-2xl font-bold mb-4">🏨 Habitaciones Disponibles</h2>
+
+    {% if habitaciones %}
+        <table class="w-full border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-2 text-left">Número</th>
+                    <th class="p-2 text-left">Tipo</th>
+                    <th class="p-2 text-left">Capacidad</th>
+                    <th class="p-2 text-left">Tarifa</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in habitaciones %}
+                    <tr class="border-t">
+                        <td class="p-2">{{ h.numero }}</td>
+                        <td class="p-2">{{ h.tipo }}</td>
+                        <td class="p-2">{{ h.capacidad }}</td>
+                        <td class="p-2">${{ h.tarifa }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-gray-600">No hay habitaciones disponibles.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Lista de Huéspedes{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10 px-6">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Lista de Huéspedes</h2>
+            <a href="{% url 'usuarios:crear_huesped' %}"
+               class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition">
+                + Añadir Huésped
+            </a>
+        </div>
+
+        <!-- Mensajes -->
+        {% if messages %}
+        <div class="p-4">
+            {% for message in messages %}
+            <div class="mb-3 p-3 rounded-lg 
+                        {% if message.tags == 'success' %}bg-green-50 text-green-700 border-l-4 border-green-500
+                        {% elif message.tags == 'error' %}bg-red-50 text-red-700 border-l-4 border-red-500
+                        {% else %}bg-gray-50 text-gray-700 border-l-4 border-gray-400{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Tabla -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Documento</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Correo</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teléfono</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha de Registro</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for huesped in huespedes %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">{{ huesped.nombre }} {{ huesped.apellido }}</td>
+                        <td class="px-6 py-4">{{ huesped.tipo_documento|upper }}: {{ huesped.numero_documento }}</td>
+                        <td class="px-6 py-4">{{ huesped.email }}</td>
+                        <td class="px-6 py-4">{{ huesped.telefono }}</td>
+                        <td class="px-6 py-4 text-gray-500 text-sm">{{ huesped.fecha_registro|date:"d/m/Y H:i" }}</td>
+                        <td class="px-6 py-4 flex gap-3">
+                            <a href="{% url 'usuarios:editar_huesped' huesped.id %}"
+                               class="text-blue-600 hover:text-blue-800 font-semibold">
+                               Editar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-6 text-gray-500">
+                            No hay huéspedes registrados aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

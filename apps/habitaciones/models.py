@@ -1,30 +1,34 @@
 from django.db import models
-from django.core.exceptions import ValidationError # Importación necesaria para el clean del modelo
+from django.core.exceptions import ValidationError
 
-class EstadoHabitacion(models.TextChoices):
-    DISPONIBLE = 'DISPONIBLE', 'Disponible'
-    OCUPADA = 'OCUPADA', 'Ocupada'
-    MANTENCION = 'MANTENCION', 'En Mantención'
-
-class Habitacion(models.Model):
+class   Habitacion(models.Model):
+    ESTADO_CHOICES = [
+        ('DISPONIBLE', 'Disponible'),
+        ('OCUPADA', 'Ocupada'),
+        ('MANTENCION', 'En Mantención'),
+    ]
+    TIPO_CHOICES = [
+        ('SIMPLE', 'Simple'),
+        ('DOBLE', 'Doble'),
+        ('SUITE', 'Suite'),
+    ]
+    
     numero = models.IntegerField(unique=True)
-    tipo = models.CharField(max_length=50)
+    tipo = models.CharField(max_length=50, choices=TIPO_CHOICES, default='SIMPLE')
     capacidad = models.PositiveIntegerField()
     tarifa = models.PositiveIntegerField()
     comodidades = models.TextField()
     estado = models.CharField(
         max_length=15,
-        choices=EstadoHabitacion.choices,
-        default=EstadoHabitacion.DISPONIBLE
+        choices=ESTADO_CHOICES,
+        default='DISPONIBLE'
     )
 
     def __str__(self):
         return f"Habitación {self.numero} ({self.tipo})"
 
     def clean(self):
-        """
-        Validaciones de modelo. Se ejecutan con form.save() o model.full_clean().
-        """
+        #validaciones personalizadas para el modelo Habitacion
         # Validar Capacidad 
         if self.capacidad < 1 or self.capacidad > 10:
             raise ValidationError("La capacidad debe estar entre 1 y 10 personas.")
@@ -32,4 +36,3 @@ class Habitacion(models.Model):
         # Validar Tarifa 
         if self.tarifa <= 0:
             raise ValidationError({'tarifa': "La tarifa debe ser mayor que cero."})
-        
