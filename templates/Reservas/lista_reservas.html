@@ -1,0 +1,54 @@
+{% extends "base.html" %}  
+{% load static %}
+
+{% block title %}Lista de Reservas - Hotel Lillo{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Reservas Activas</h1>
+
+        {# Mostrar mensajes de éxito/error, como el de la cancelación #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if reservas %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Huésped</th>
+                        <th>Habitación</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                        <tr>
+                            <td>{{ reserva.pk }}</td>
+                            <td>{{ reserva.Huespedes.nombre }}</td>
+                            <td>{{ reserva.Habitaciones.numero_habitacion }}</td>
+                            <td>{{ reserva.fecha_check_in|date:"d/m/Y" }}</td>
+                            <td>{{ reserva.fecha_check_out|date:"d/m/Y" }}</td>
+                            <td>{{ reserva.estado_reserva|capfirst }}</td>
+                            <td>
+                                <a href="{% url 'cancelar_reserva' reserva_id=reserva.pk %}" class="btn btn-danger btn-sm">
+                                    Cancelar
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay reservas activas (pendientes o confirmadas) para mostrar.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -8,9 +8,11 @@ urlpatterns = [
     path('', vi.home, name='home'),
     # urls para uso en los templates
     path('Hacer_recervas/', vr.Registrar_reserva, name='Hacer_Reservas'),
+    path('cancelar_reserva/<int:reserva_id>/', vr.cancelar_reserva, name='cancelar_reserva'),
+    path('lista_reservas/', vr.lista_reservas, name='lista_reservas'),
     # urls de apps
     path('huespedes/', include('apps.usuarios.urls')),
-    path('habitaciones/', include('apps.habitaciones.urls')),
+    path('habitacion/', include('apps.habitaciones.urls')),
     path('login/', vi.login_view, name='login'),
     path('logout/', vi.logout_view, name='logout')
 ]

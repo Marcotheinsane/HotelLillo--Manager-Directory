@@ -6,7 +6,9 @@ class FormularioReservas(forms.ModelForm):
 
     class Meta:
         model = RegistroReservas
-        fields = ["fecha_check_in", "fecha_check_out", "estado_reserva", "Huespedes", "numero_habitacion_temporal"]
+        fields = ["fecha_check_in", "fecha_check_out", "estado_reserva", "Huespedes", 
+                  #"numero_habitacion_temporal" 
+                ]
         
         #integracion de tailwind en el forms mala practica 
         widgets = {
@@ -52,3 +54,11 @@ class FormularioReservas(forms.ModelForm):
             raise forms.ValidationError('La fecha de entrada no puede ser anterior a hoy')
         
         return cleaned_data
+    
+class FormularioCancelacion(forms.Form):
+    """Formulario simple para capturar el motivo de la cancelación."""
+    motivo_cancelacion = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 4}), 
+        label='Motivo de la cancelación',
+        required=True
+    )
