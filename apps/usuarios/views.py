@@ -7,27 +7,26 @@ from .models import Perfil_empleado, Huesped
 from .forms import HuespedForm, LoginForm, RegistroEmpleadoForm
 # Create your views here.
 
-@login_required
-def home(request):
-    return render(request,'home.html')
-
-def registro_usuario(request):
+#crud basico de huesedes
+def crear_huesped(request):
     if request.method == 'POST':
-        form = RegistroEmpleadoForm(request.POST)
+        form = HuespedForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Registro exitoso. Por favor, inicia sesión.')
-            return redirect('login')
-        else:
-            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+            form.save()
+
+            messages.success(request, 'Huésped registrado correctamente.')
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('home') 
     else:
-        form = RegistroEmpleadoForm()
-    return render(request, 'usuarios/registro.html', {'form': form})
+        form = HuespedForm()
+    
+    return render(request, 'huesped/Registrar_huesped.html', {'form': form})
 
 
 def listar_huespedes(request):
     huespedes = Huesped.objects.all().order_by('-fecha_registro')
-
 
     return render(request, 'huesped/listar_huespedes.html', {'huespedes': huespedes})
 
@@ -49,10 +48,10 @@ def editar_huesped(request, pk):
 
 
 # Usuarios- Login y Logout de administradores y empleados
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
-    
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
@@ -72,23 +71,25 @@ def login_view(request):
     
     return render(request, 'login.html', {'form': form})
 
+def registro_usuario(request):
+    if request.method == 'POST':
+        form = RegistroEmpleadoForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Registro exitoso. Por favor, inicia sesión.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        form = RegistroEmpleadoForm()
+    return render(request, 'usuarios/registro.html', {'form': form})
+
 @login_required
 def logout_view(request):
     logout(request)
     messages.info(request, 'Has cerrado sesión correctamente.')
     return redirect('login')
 
-def crear_huesped(request):
-    if request.method == 'POST':
-        form = HuespedForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home') 
-    
-    else:
-        form = HuespedForm()
-    
-    return render(request, 'huesped/Registrar_huesped.html', {'form': form})
 
 def is_admin(user):
     try:

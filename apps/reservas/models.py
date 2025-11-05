@@ -8,8 +8,9 @@ from apps.habitaciones.models import Habitacion
 class RegistroReservas(models.Model):
     ESTADO_CHOICES = [
         ("pendiente", "Pendiente"),
-        ("confirmada", "Confirmada"), 
-        ("cancelada", "Cancelada")
+        ("confirmada", "Confirmada"),
+        ("cancelada", "Cancelada"),
+        ("finalizada", "Finalizada"),
     ]
     
     fecha_check_in = models.DateField(
@@ -30,15 +31,18 @@ class RegistroReservas(models.Model):
     Habitaciones = models.ForeignKey(
         Habitacion,
         on_delete=models.CASCADE
-    )
-    Estado_Habitacion =models.CharField(
-        choices=Habitacion.ESTADO_CHOICES,
-        max_length=15,
     )   
     Tipo_Habitacion = models.CharField(
         choices=Habitacion.TIPO_CHOICES,    
         max_length=50,
     )
+    pago_estancia = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        help_text="Monto pagado por la estancia al momento del check-in."
+    )
+    created_at = models.DateTimeField(auto_now_add=True) #necesario para poder ordenar las reservas por fecha de creacion
     
-def __str__(self):
-        return f"Reserva de {self.Huespedes.nombre if self.Huespedes else 'N/A'} ({self.estado_reserva} )"
+    def __str__(self):
+            return f"Reserva de {self.Huespedes.nombre if self.Huespedes else 'N/A'} ({self.estado_reserva} )"

@@ -1,50 +1,196 @@
 {% extends "base.html" %} 
 
-{% block title %}Inicio - Hotel Lillo{% endblock %}
+{% block title %}Sistema de Gestión - Hotel Lillo{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Acciones Rápidas</h1>
-    
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <a href="{% url 'Hacer_Reservas' %}" class="bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
-            <div class="flex flex-col items-center text-white">
-                <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
-                    <i class="fas fa-calendar-plus text-4xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold">Hacer una Reserva</h3>
-            </div>
-        </a>
-        
-        <a href="#" class="bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
-            <div class="flex flex-col items-center text-white">
-                <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
-                    <i class="fas fa-key text-4xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold">Realizar Check-In</h3>
-            </div>
-        </a>
-        
-        <a href="#" class="bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
-            <div class="flex flex-col items-center text-white">
-                <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
-                    <i class="fas fa-suitcase-rolling text-4xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold">Realizar Check-Out</h3>
-            </div>
-        </a>
-        
-            <a href="{% url 'consultar_habitaciones' %}" 
-            class="bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all block">
-                <div class="flex flex-col items-center text-white">
-                    <div class="bg-white/20 rounded-full p-4 mb-4 backdrop-blur-sm">
-                        <i class="fas fa-building text-4xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold">Ver Estado de Habitaciones</h3>
-                </div>
-            </a>
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 mb-6 flex items-center justify-between">
+        <div class="flex items-center text-white">
+            <i class="fas fa-hotel text-3xl mr-4"></i>
+            <h1 class="text-2xl font-bold">Sistema de Gestión - Hotel Lillo</h1>
+        </div>
+        <div class="flex items-center text-white">
+            <i class="fas fa-user-circle text-2xl mr-2"></i>
+            <span class="font-medium">{{ user.first_name|default:user.username }}</span>
+        </div>
+    </div>
 
+    <!-- Métricas Principales -->
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">MÉTRICAS PRINCIPALES</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Habitaciones Ocupadas -->
+            <div class="bg-white rounded-lg border-2 border-blue-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-bed text-blue-600 text-2xl mr-3"></i>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ habitaciones_ocupadas }} / {{ total_habitaciones }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Habitaciones</div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-2">
+                    {{ habitaciones_ocupadas }} Ocupadas • {{ habitaciones_disponibles }} Disponibles • {{ habitaciones_mantencion }} En Mantención
+                </div>
+            </div>
+
+            <!-- Check-ins Pendientes -->
+            <div class="bg-white rounded-lg border-2 border-orange-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-calendar-check text-orange-500 text-2xl mr-3"></i>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ checkins_pendientes }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Check-ins</div>
+                    </div>
+                </div>
+                <div class="text-xs text-orange-600 font-medium mt-2">Pendientes Hoy</div>
+            </div>
+
+            <!-- Check-outs Hoy -->
+            <div class="bg-white rounded-lg border-2 border-green-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-calendar-minus text-green-600 text-2xl mr-3"></i>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ checkouts_hoy }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Check-outs</div>
+                    </div>
+                </div>
+                <div class="text-xs text-green-600 font-medium mt-2">Programados Hoy</div>
+            </div>
+
+            <!-- Reservas por Confirmar -->
+            <div class="bg-white rounded-lg border-2 border-red-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl mr-3"></i>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ reservas_pendientes }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Reservas</div>
+                    </div>
+                </div>
+                <div class="text-xs text-red-600 font-medium mt-2">por Confirmar</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Principal: Acciones + Alertas -->
+    <div class="grid lg:grid-cols-3 gap-6 mb-6">
+        <!-- Columna Izquierda: Acciones Rápidas -->
+        <div class="lg:col-span-2">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">ACCIONES RÁPIDAS</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- Nueva Reserva -->
+                <a href="{% url 'Hacer_Reservas' %}" 
+                   class="bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 rounded-xl p-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all block">
+                    <div class="flex items-center text-white">
+                        <div class="bg-white/20 rounded-lg p-3 mr-4 backdrop-blur-sm">
+                            <i class="fas fa-calendar-plus text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">NUEVA RESERVA</h3>
+                            <p class="text-sm text-emerald-100">Ver disponibilidad y reservar</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Check-in -->
+                <a href="#" 
+                   class="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl p-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all block">
+                    <div class="flex items-center text-white">
+                        <div class="bg-white/20 rounded-lg p-3 mr-4 backdrop-blur-sm">
+                            <i class="fas fa-key text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">CHECK-IN</h3>
+                            <p class="text-sm text-blue-100">Registrar entrada de huésped</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Check-out -->
+                <a href="{% url 'recepcion:seleccionar_huesped' %}" 
+                   class="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl p-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all block">
+                    <div class="flex items-center text-white">
+                        <div class="bg-white/20 rounded-lg p-3 mr-4 backdrop-blur-sm">
+                            <i class="fas fa-suitcase-rolling text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">CHECK-OUT</h3>
+                            <p class="text-sm text-blue-100">Procesar salida y facturación</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Ver Habitaciones -->
+                <a href="{% url 'consultar_habitaciones' %}" 
+                   class="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl p-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all block">
+                    <div class="flex items-center text-white">
+                        <div class="bg-white/20 rounded-lg p-3 mr-4 backdrop-blur-sm">
+                            <i class="fas fa-chart-line text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">VER HABITACIONES</h3>
+                            <p class="text-sm text-blue-100">Estado en tiempo real</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Alertas y Recomendaciones -->
+        <div>
+            <!-- Alertas Críticas -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">ALERTAS CRÍTICAS</h2>
+                <div class="bg-gray-50 border-l-4 border-gray-300 rounded-lg p-4 shadow-sm">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-gray-400 mr-3 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">No implementado aún</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recomendaciones -->
+            <div>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>RECOMENDACIONES
+                </h2>
+                <div class="bg-gray-50 border-l-4 border-gray-300 rounded-lg p-4 shadow-sm">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-gray-400 mr-3 mt-1"></i>
+                        <div class="text-sm text-gray-500">
+                            <p>No implementado aún</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Inferior: Movimientos + Ocupación -->
+    <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Próximos Movimientos -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">HOY - PRÓXIMOS MOVIMIENTOS</h2>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-gray-50 rounded-lg p-8 text-center">
+                    <i class="fas fa-calendar-alt text-gray-300 text-5xl mb-3"></i>
+                    <p class="text-gray-500 font-medium">No implementado aún</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ocupación Semanal -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">OCUPACIÓN SEMANAL</h2>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-gray-50 rounded-lg p-8 text-center">
+                    <i class="fas fa-chart-bar text-gray-300 text-5xl mb-3"></i>
+                    <p class="text-gray-500 font-medium">No implementado aún</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

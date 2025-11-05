@@ -1,30 +1,39 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tipoSelect = document.getElementById("id_Tipo_Habitacion");
     const habitacionesSelect = document.getElementById("id_Habitaciones");
+    const fechaInInput = document.getElementById("id_fecha_check_in");
+    const fechaOutInput = document.getElementById("id_fecha_check_out");
 
-    // Si no existen los campos, no hacemos nada
-    if (!tipoSelect || !habitacionesSelect) {
-        console.warn("No se encontró el campo de tipo o habitaciones en el formulario.");
+    if (!tipoSelect || !habitacionesSelect || !fechaInInput || !fechaOutInput) {
+        console.warn("Faltan elementos del formulario de reservas.");
         return;
     }
 
-    // Obtenemos la URL desde el atributo data-url del select
-    const fetchUrl = tipoSelect.dataset.url;
+    // Función para cargar habitaciones disponibles
+    function cargarHabitaciones() {
+        const tipo = tipoSelect.value;
+        const fechaIn = fechaInInput.value;
+        const fechaOut = fechaOutInput.value;
 
-    tipoSelect.addEventListener("change", function () {
-        const tipo = this.value;
-
-        // Limpiar y mostrar estado de carga
-        habitacionesSelect.innerHTML = '<option value="">Cargando habitaciones...</option>';
-
-        // Si no hay tipo seleccionado
-        if (!tipo) {
-            habitacionesSelect.innerHTML = '<option value="">Seleccione un tipo primero</option>';
+        // Validar que todos los campos necesarios estén completos
+        if (!tipo || !fechaIn || !fechaOut) {
+            habitacionesSelect.innerHTML = '<option value="">Complete fechas y tipo primero</option>';
             return;
         }
 
-        // Llamada AJAX al backend usando la URL de Django
-        fetch(`${fetchUrl}?tipo=${tipo}`)
+        // Validar que fecha_out > fecha_in
+        if (new Date(fechaOut) <= new Date(fechaIn)) {
+            habitacionesSelect.innerHTML = '<option value="">Fecha de salida debe ser posterior</option>';
+            return;
+        }
+
+        // Mostrar estado de carga
+        habitacionesSelect.innerHTML = '<option value="">🔄 Verificando disponibilidad...</option>';
+
+        // Llamada AJAX con fechas
+        const url = `/habitaciones_por_tipo_y_fechas/?tipo=${tipo}&fecha_in=${fechaIn}&fecha_out=${fechaOut}`;
+
+        fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -32,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
-                // Limpiamos el select de habitaciones
                 habitacionesSelect.innerHTML = '<option value="">Seleccione una habitación</option>';
 
                 if (data.length > 0) {
@@ -44,14 +52,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 } else {
                     const noOption = document.createElement("option");
-                    noOption.textContent = "No hay habitaciones disponibles";
+                    noOption.textContent = "❌ No hay habitaciones disponibles en estas fechas";
                     noOption.disabled = true;
                     habitacionesSelect.appendChild(noOption);
                 }
             })
             .catch(error => {
                 console.error("Error al cargar habitaciones:", error);
-                habitacionesSelect.innerHTML = '<option value="">Error al cargar habitaciones</option>';
+                habitacionesSelect.innerHTML = '<option value="">Error al verificar disponibilidad</option>';
             });
-    });
+    }
+
+    // Event listeners
+    tipoSelect.addEventListener("change", cargarHabitaciones);
+    fechaInInput.addEventListener("change", cargarHabitaciones);
+    fechaOutInput.addEventListener("change", cargarHabitaciones);
 });

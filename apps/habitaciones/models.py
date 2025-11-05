@@ -36,3 +36,4 @@ class   Habitacion(models.Model):
         # Validar Tarifa 
         if self.tarifa <= 0:
             raise ValidationError({'tarifa': "La tarifa debe ser mayor que cero."})
+    

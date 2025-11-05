@@ -9,11 +9,9 @@ class FormularioReservas(forms.ModelForm):
         fields = [
             "fecha_check_in",
             "fecha_check_out",
-            "estado_reserva",
             "Huespedes",
             "Tipo_Habitacion",
             "Habitaciones",
-            "Estado_Habitacion",      
         ]
 
         widgets = {
@@ -28,11 +26,6 @@ class FormularioReservas(forms.ModelForm):
                          'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
                          'duration-200 hover:border-gray-300',
                 'type': 'date'
-            }),
-            'estado_reserva': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300'
             }),
             'Huespedes': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
@@ -52,21 +45,14 @@ class FormularioReservas(forms.ModelForm):
                          'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
                          'duration-200 hover:border-gray-300'
             }),
-            'Estado_Habitacion': forms.Select(attrs={   # 👈 Estilo para estado
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300'
-            }),
         }
 
         labels = {
             'fecha_check_in': 'Check-in',
             'fecha_check_out': 'Check-out',
-            'estado_reserva': 'Estado de la Reserva',
             'Huespedes': 'Huésped',
             'Tipo_Habitacion': 'Tipo de Habitación',
             'Habitaciones': 'Habitación',
-            'Estado_Habitacion': 'Estado de la Habitación',
         }
 
     # --- Validaciones personalizadas ---
