@@ -50,10 +50,11 @@
                         <td class="px-6 py-4">{{ huesped.telefono }}</td>
                         <td class="px-6 py-4 text-gray-500 text-sm">{{ huesped.fecha_registro|date:"d/m/Y H:i" }}</td>
                         <td class="px-6 py-4 flex gap-3">
-                            <a href="{% url 'usuarios:editar_huesped' huesped.id %}"
+                            <a href="{% url 'usuarios:editar_huesped'   huesped.id %}"
                                class="text-blue-600 hover:text-blue-800 font-semibold">
                                Editar
                             </a>
+                            <a href="{% url 'usuarios:historial_huesped' huesped.id %}" class="text-green-700 hover:text-green-800 font-semibold">Historial</a>
                         </td>
                     </tr>
                     {% empty %}

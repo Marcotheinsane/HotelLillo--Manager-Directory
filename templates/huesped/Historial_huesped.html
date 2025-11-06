@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Historial del Huésped{% endblock %}
+
+
+{% block content %}
+<div class="historial-huesped- container-mx-auto p-6 bg-white rounded-lg shadow-md">
+    <h2 class= "text-xl font-semibold">Historial de {{ huesped.nombre }} {{ huesped.apellido }}</h2>
+    
+    <div class="estadisticas">
+        <p>Total de reservas: {{ total_reservas }}</p>
+        <p>Total gastado: ${{ total_gastado|floatformat:2 }}</p>
+    </div>
+
+    <h3 class="text-lg font-semibold">Reservas Activas ({{ reservas_activas.count }})</h3>
+    {% for reserva in reservas_activas %}
+    <div class="reserva activa- mb-4 p-4 border border-gray-400 rounded-lg">
+        <p><strong>Habitación:</strong> {{ reserva.Habitaciones.numero }} - {{ reserva.Tipo_Habitacion }}</p>
+        <p><strong>Check-in:</strong> {{ reserva.fecha_check_in }}</p>
+        <p><strong>Check-out:</strong> {{ reserva.fecha_check_out }}</p>
+        <p><strong>Estado:</strong> {{ reserva.get_estado_reserva_display }}</p>
+        <p><strong>Pago:</strong> ${{ reserva.pago_estancia }}</p>
+    </div>
+    {% empty %}
+    <p>No hay reservas activas</p>
+    {% endfor %}
+
+    <h3 class="text-lg font-semibold">Historial de Reservas ({{ reservas_finalizadas.count }})</h3>
+    {% for reserva in reservas_finalizadas %}
+    
+    <div class="reserva finalizada mb-4 p-4 border border-gray-400 rounded-lg">
+        <p><strong>Habitación:</strong> {{ reserva.Habitaciones.numero }} - {{ reserva.Tipo_Habitacion }}</p>
+        <p><strong>Check-in:</strong> {{ reserva.fecha_check_in }}</p>
+        <p><strong>Check-out:</strong> {{ reserva.fecha_check_out }}</p>
+        <p><strong>Estado:</strong> {{ reserva.get_estado_reserva_display }}</p>
+        <p><strong>Pago:</strong> ${{ reserva.pago_estancia }}</p>
+    </div>
+    {% empty %}
+    <p>No hay reservas anteriores</p>
+    {% endfor %}
+</div>
+{% endblock content %}
+

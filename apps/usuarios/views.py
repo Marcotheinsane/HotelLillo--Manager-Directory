@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+
+from .models import Huesped
+from apps.reservas.models import RegistroReservas
 from django.contrib.auth.models import User
 from .models import Perfil_empleado, Huesped
 from .forms import HuespedForm, LoginForm, RegistroEmpleadoForm
@@ -44,7 +47,14 @@ def editar_huesped(request, pk):
     else:
         form = HuespedForm(instance=huesped)  # Precarga los datos existentes 
 
-    return render(request, 'huesped/listar_huespedes.html', {'form': form, 'huesped': huesped})
+    return render(request, 'huesped/editar_huesped.html', {'form': form, 'huesped': huesped})
+
+#Aqui se agrega la vista para poder consultar el historial de un huesped
+def historial_huesped(request, pk):
+    huesped = get_object_or_404(Huesped, pk=pk)
+    # Aquí se va agregar la lógica para obtener el historial del huésped
+    # Quiero agrupar todos los datos de 1 reserva y su estado si esta actuva o finaliazada ahora si 
+    # Tiene mas de una reserva historica se podra vizualizar tambien
 
 
 # Usuarios- Login y Logout de administradores y empleados
@@ -83,6 +93,41 @@ def registro_usuario(request):
     else:
         form = RegistroEmpleadoForm()
     return render(request, 'usuarios/registro.html', {'form': form})
+
+
+def historial_huesped(request, pk):
+    # Aquí se va agregar la lógica para obtener el historial del huésped
+    # Quiero agrupar todos los datos de 1 reserva y su estado si esta actuva o finaliazada ahora si 
+    # Tiene mas de una reserva historica se podra vizualizar tambien
+    huesped = get_object_or_404(Huesped, pk=pk)
+    
+
+    # Obtener todas las reservas del huésped ordenadas por fecha de creación (más reciente primero)
+    reservas_historicas = RegistroReservas.objects.filter(
+        Huespedes=huesped 
+    ).select_related('Habitaciones').order_by('-created_at')
+    
+    # Clasificar reservas por estado si estan activas o finalizadas
+    reservas_activas = reservas_historicas.filter(
+        estado_reserva__in=['pendiente', 'confirmada']
+    )
+    reservas_finalizadas = reservas_historicas.filter(
+        estado_reserva__in=['finalizada', 'cancelada']
+    )
+    
+    # Calcular estadísticas del huésped 
+    total_reservas = reservas_historicas.count()
+    total_gastado = sum(r.pago_estancia for r in reservas_historicas)
+    
+    context = {
+        'huesped': huesped,
+        'reservas_historicas': reservas_historicas,
+        'reservas_activas': reservas_activas,
+        'reservas_finalizadas': reservas_finalizadas,
+        'total_reservas': total_reservas,
+        'total_gastado': total_gastado,
+    }
+    return render(request, 'huesped/Historial_huesped.html', context)
 
 @login_required
 def logout_view(request):

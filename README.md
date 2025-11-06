@@ -44,3 +44,6 @@ El sistema está desarrollado bajo metodología Scrum y está específicamente d
 
 # jueves 23 se implementa modulo de ingreso de habitaciones, testo pendiente pues no hay forma de acceder sin poder entrar como admin. -Mitsuki
 # jueves 23, testeo funcional, se crea un nuevo html y espacio en el navbar para testear el funcionamiento de la insercion <-- Crear una card personalizada y arreglar el forms para que se vea mejor -Mitsuki
+# 06-11-2025
+# se implemento parcialmente el historial de reservas de los usuarios para poder consultar las historicas de las instancias de los huespedes 
+# se creo un nuevo template: "Historial_huesped" tambien sea añadio una nueva views en  el modulo de usuarios 
