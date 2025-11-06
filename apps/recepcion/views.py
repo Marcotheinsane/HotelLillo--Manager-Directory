@@ -1,17 +1,22 @@
+# apps/recepcion/views.py
+from decimal import Decimal
+from django.db.models import Q
 from datetime import date
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone # Usaremos timezone para la fecha actual
-from django.db.models import Q # Para construir consultas complejas
+from django.utils import timezone
 from django.contrib import messages
 from decimal import Decimal
 
 
-# models
+# Models del proyecto
 from apps.reservas.models import RegistroReservas
 from apps.usuarios.models import Huesped
 from apps.habitaciones.models import Habitacion
 
-# forms
+# NUEVO: modelos de cobros/servicios
+from apps.servicios.models import ServicioConsumido, Pago
+
+# Formularios
 from .forms import CheckoutForm, ServiceFormSet
 
 # =============== CHECK-IN ===================
@@ -101,111 +106,166 @@ def seleccionar_reserva_checkin(request):
 
 
 def seleccionar_huesped(request):
-	"""Lista de huéspedes actualmente alojados (check-in activo).
-	Definición asumida: reservas con fecha_check_in <= hoy < fecha_check_out y estado_reserva == 'confirmada'.
-	"""
-	# Obtiene solo las reservas de huéspedes que están actualmente en el hotel.
-	hoy = timezone.now().date()
-	activos = RegistroReservas.objects.filter(
-		fecha_check_in__lte=hoy,
-		fecha_check_out__gte=hoy,
-	).exclude(
-		Q(estado_reserva='finalizada') | Q(estado_reserva='cancelada')
-	).select_related('Huespedes', 'Habitaciones').order_by('-fecha_check_out')
+    """
+    Lista de huéspedes actualmente alojados (check-in activo).
+    Criterio: reservas con fecha_check_in <= hoy <= fecha_check_out,
+    excluyendo finalizadas/canceladas.
+    """
+    hoy = timezone.now().date()
+    activos = (
+        RegistroReservas.objects.filter(
+            fecha_check_in__lte=hoy,
+            fecha_check_out__gte=hoy,
+        )
+        .exclude(Q(estado_reserva="finalizada") | Q(estado_reserva="cancelada"))
+        .select_related("Huespedes", "Habitaciones")
+        .order_by("-fecha_check_out")
+    )
 
-	return render(request, 'recepcion/seleccionar_huesped.html', {'activos': activos})
+    return render(request, "recepcion/seleccionar_huesped.html", {"activos": activos})
+
 
 def checkout_huesped(request, reserva_id):
-	reserva = get_object_or_404(RegistroReservas, pk=reserva_id)
-	huesped = reserva.Huespedes
-	habitacion = reserva.Habitaciones
+    """
+    Flujo de checkout:
+    - GET: muestra historial de servicios + formset para agregar nuevos.
+    - POST (previsualizar): calcula totales pero NO persiste.
+    - POST (confirmar_checkout): crea ServicioConsumido, registra Pago, finaliza reserva y libera habitación.
+    Reglas actuales:
+    - Se cobra SOLO servicios (no incluye costo de habitación en el cobro de checkout).
+    - `pago_estancia` se deja como está (puedes activar el acumulado si lo deseas).
+    """
+    reserva = get_object_or_404(RegistroReservas, pk=reserva_id)
+    huesped = reserva.Huespedes
+    habitacion = reserva.Habitaciones
 
-	# calcular noches
-	noches = (reserva.fecha_check_out - reserva.fecha_check_in).days
-	if noches <= 0:
-		noches = 1
+    # Calcular noches (mínimo 1)
+   # Calcular noches (mínimo 1)
+    noches = (reserva.fecha_check_out - reserva.fecha_check_in).days
+    noches = max(1, noches)
+    habitacion.estado = "DISPONIBLE"  # no "disponible"
+    habitacion.save()
 
-	habitacion_tarifa = getattr(habitacion, 'tarifa', 0)
-	costo_habitacion = noches * habitacion_tarifa
 
-	# --- Lógica de Pago en Check-in ---
-	# Si el campo pago_estancia está en cero, lo actualizamos con el costo de la habitación.
-	# Esto simula que el pago se realizó al momento del check-in.
-	if request.method == 'POST':
-		form = CheckoutForm(request.POST)
-		service_formset = ServiceFormSet(request.POST)
-		if form.is_valid() and service_formset.is_valid():
-			# Obtenemos el porcentaje de impuestos como Decimal para mantener la precisión.
-			from decimal import Decimal
-			impuestos_pct_decimal = form.cleaned_data.get('impuestos')
-			impuestos_pct = impuestos_pct_decimal if impuestos_pct_decimal is not None else Decimal('0.0')
+    # En tu proyecto la tarifa de habitación está en 'tarifa'
+    habitacion_tarifa = getattr(habitacion, "tarifa", 0) or 0
+    costo_habitacion = noches * habitacion_tarifa
 
-			notas = form.cleaned_data.get('notas')
+    # Historial previamente guardado
+    servicios_guardados = reserva.servicios_consumidos.all().order_by("-creado_en")
 
-			servicios = []
-			total_servicios = 0
-			for f in service_formset:
-				nombre = f.cleaned_data.get('nombre')
-				precio = f.cleaned_data.get('precio') or 0
-				if nombre and precio:
-					servicios.append({'nombre': nombre, 'precio': precio})
-					total_servicios += precio
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        service_formset = ServiceFormSet(request.POST)
 
-			# El subtotal a pagar en checkout es SOLO de los servicios.
-			subtotal = total_servicios
-			impuestos = (subtotal * impuestos_pct) / Decimal('100')
-			total_a_pagar_checkout = subtotal + impuestos # El cálculo es correcto
+        if form.is_valid() and service_formset.is_valid():
+            impuestos_pct = form.cleaned_data.get("impuestos") or Decimal("0.0")
+            notas = form.cleaned_data.get("notas", "")
+            metodo_pago = (form.cleaned_data.get("metodo_pago") or "efectivo").strip()
 
-			# --- Lógica de confirmación de Check-Out ---
-			if 'confirmar_checkout' in request.POST:
-				# 1. Actualizar y guardar la reserva
-				reserva.estado_reserva = 'finalizada'
-				reserva.fecha_check_out = timezone.now().date()
-				# Opcional: Aquí podrías guardar el total de la factura si tuvieras un campo para ello.
-				reserva.save()
+            # Construimos lista de servicios nuevos (NO persistimos aún)
+            servicios_nuevos = []
+            subtotal_nuevos = Decimal("0.00")
 
-				# 2. Liberar la habitación
-				habitacion.estado = 'disponible'
-				habitacion.save()
+            for f in service_formset:
+                if not f.cleaned_data or f.cleaned_data.get("DELETE"):
+                    continue
+                nombre = f.cleaned_data.get("nombre")
+                precio = f.cleaned_data.get("precio")
+                cantidad = f.cleaned_data.get("cantidad") or 1
+                if nombre and precio:
+                    precio_dec = Decimal(precio)
+                    cantidad_int = int(cantidad)
+                    servicios_nuevos.append(
+                        {
+                            "nombre": nombre,
+                            "precio": precio_dec,
+                            "cantidad": cantidad_int,
+                            "total": precio_dec * cantidad_int,
+                        }
+                    )
+                    subtotal_nuevos += precio_dec * cantidad_int
 
-				# 3. Redirigir con un mensaje de éxito (descomentar si tienes `messages` configurado)
-				# from django.contrib import messages
-				# messages.success(request, f"Check-out de {huesped.nombre} completado exitosamente.")
-				return redirect('recepcion:seleccionar_huesped')
+            impuestos_calculados = (subtotal_nuevos * impuestos_pct) / Decimal("100")
+            total_a_pagar_checkout = (subtotal_nuevos + impuestos_calculados).quantize(
+                Decimal("0.01")
+            )
 
-			# Renderizar resumen final en la misma plantilla (no persistimos)
-			contexto = {
-				'reserva': reserva,
-				'huesped': huesped,
-				'habitacion': habitacion,
-				'noches': noches,
-				'costo_habitacion': costo_habitacion,
-				'pago_estancia': reserva.pago_estancia, # Mostramos lo que ya se pagó
-				'servicios': servicios,
-				'total_servicios': total_servicios,
-				'impuestos_pct': impuestos_pct,
-				'impuestos_calculados': impuestos, # Renombramos para evitar conflicto con el campo del form
-				'total_a_pagar_checkout': total_a_pagar_checkout,
-				'notas': notas,
-				'form': form,
-				'service_formset': service_formset,
-				'resumen_listo': True, # Bandera para mostrar el resumen y el botón de confirmar
-			}
-			return render(request, 'recepcion/checkout.html', contexto)
-	else:
-		form = CheckoutForm()
-		service_formset = ServiceFormSet()
+            # --- Confirmación: aquí sí persistimos ---
+            if "confirmar_checkout" in request.POST:
+                # 1) Guardar cada servicio consumido
+                for item in servicios_nuevos:
+                    ServicioConsumido.objects.create(
+                        reserva=reserva,
+                        nombre=item["nombre"],
+                        precio=item["precio"],
+                        cantidad=item["cantidad"],
+                    )
 
-	contexto = {
-		'reserva': reserva,
-		'huesped': huesped,
-		'habitacion': habitacion,
-		'noches': noches,
-		'costo_habitacion': costo_habitacion,
-		# Si el pago de la estancia aún no se ha registrado, se calcula y muestra.
-		# Se guardará en la BD solo al confirmar el check-out (o en un futuro check-in).
-		'pago_estancia': reserva.pago_estancia,
-		'form': form,
-		'service_formset': service_formset,
-	}
-	return render(request, 'recepcion/checkout.html', contexto)
+                # 2) Registrar el pago si corresponde
+                if total_a_pagar_checkout > 0:
+                    Pago.objects.create(
+                        reserva=reserva,
+                        monto=total_a_pagar_checkout,
+                        metodo=metodo_pago,
+                        notas=f"Pago confirmado en check-out. {notas}".strip(),
+                    )
+                    # (Opcional) acumular en pago_estancia:
+                    # reserva.pago_estancia = (Decimal(reserva.pago_estancia or 0) + total_a_pagar_checkout)
+
+                # 3) Finalizar la reserva y liberar habitación
+                reserva.estado_reserva = "finalizada"
+                reserva.fecha_check_out = timezone.now().date()
+                # Si activaste el acumulado en pago_estancia, no olvides guardar ese valor también.
+                reserva.save()
+
+                habitacion.estado = "disponible"
+                habitacion.save()
+
+                return redirect("recepcion:seleccionar_huesped")
+
+            # Previsualización (NO guarda)
+            contexto = {
+                "reserva": reserva,
+                "huesped": huesped,
+                "habitacion": habitacion,
+                "noches": noches,
+                "costo_habitacion": costo_habitacion,
+                "pago_estancia": reserva.pago_estancia,
+
+                "servicios_guardados": servicios_guardados,
+                "servicios": servicios_nuevos,  # lo nuevo (preview)
+                "total_servicios": subtotal_nuevos,
+                "impuestos_pct": impuestos_pct,
+                "impuestos_calculados": impuestos_calculados,
+                "total_a_pagar_checkout": total_a_pagar_checkout,
+
+                "notas": notas,
+                "form": form,
+                "service_formset": service_formset,
+                "resumen_listo": True,
+            }
+            return render(request, "recepcion/checkout.html", contexto)
+
+    else:
+        form = CheckoutForm()
+        service_formset = ServiceFormSet()
+
+    # GET inicial
+    contexto = {
+        "reserva": reserva,
+        "huesped": huesped,
+        "habitacion": habitacion,
+        "noches": noches,
+        "costo_habitacion": costo_habitacion,
+        "pago_estancia": reserva.pago_estancia,
+
+        "servicios_guardados": servicios_guardados,
+
+        "form": form,
+        "service_formset": service_formset,
+    }
+    return render(request, "recepcion/checkout.html", contexto)
+
+
+

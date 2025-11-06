@@ -3,93 +3,177 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Información del huésped -->
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-xl font-semibold mb-3">Información del Huésped</h2>
-        <p class="font-medium">{{ huesped.nombre }} {{ huesped.apellido }}</p>
-        <p class="text-sm text-gray-600">Documento: {{ huesped.tipo_documento }} - {{ huesped.numero_documento }}</p>
-        <p class="text-sm text-gray-600">Email: {{ huesped.email }}</p>
-        <p class="text-sm text-gray-600">Teléfono: {{ huesped.telefono }}</p>
+  <!-- Información del huésped -->
+  <div class="bg-white p-6 rounded shadow">
+    <h2 class="text-xl font-semibold mb-3">Información del Huésped</h2>
+    <p class="font-medium">{{ huesped.nombre }} {{ huesped.apellido }}</p>
+    <p class="text-sm text-gray-600">Documento: {{ huesped.tipo_documento }} - {{ huesped.numero_documento }}</p>
+    <p class="text-sm text-gray-600">Email: {{ huesped.email }}</p>
+    <p class="text-sm text-gray-600">Teléfono: {{ huesped.telefono }}</p>
 
-        <hr class="my-4">
-        <p><strong>Habitación:</strong> {{ habitacion.numero }} — {{ habitacion.tipo }}</p>
-        <p><strong>Fechas:</strong> {{ reserva.fecha_check_in }} → {{ reserva.fecha_check_out }}</p>
-        <p><strong>Noches:</strong> {{ noches }}</p>
-    </div>
+    <hr class="my-4">
+    <p><strong>Habitación:</strong> {{ habitacion.numero }} — {{ habitacion.tipo }}</p>
+    <p><strong>Fechas:</strong> {{ reserva.fecha_check_in }} → {{ reserva.fecha_check_out }}</p>
+    <p><strong>Noches:</strong> {{ noches }}</p>
 
-    <!-- Facturación -->
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-xl font-semibold mb-3">Resumen de Facturación</h2>
+    <!-- Historial de servicios ya guardados -->
+    <hr class="my-4">
+    <h3 class="text-lg font-semibold mb-2">Servicios ya guardados</h3>
+    {% if servicios_guardados %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium text-gray-700">Fecha</th>
+              <th class="px-3 py-2 text-left font-medium text-gray-700">Servicio</th>
+              <th class="px-3 py-2 text-right font-medium text-gray-700">Unit</th>
+              <th class="px-3 py-2 text-right font-medium text-gray-700">Cant</th>
+              <th class="px-3 py-2 text-right font-medium text-gray-700">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {% for s in servicios_guardados %}
+            <tr>
+              <td class="px-3 py-2">{{ s.creado_en|date:"d/m/Y H:i" }}</td>
+              <td class="px-3 py-2">{{ s.nombre }}</td>
+              <td class="px-3 py-2 text-right">${{ s.precio }}</td>
+              <td class="px-3 py-2 text-right">{{ s.cantidad }}</td>
+              <td class="px-3 py-2 text-right">${{ s.total }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-sm text-gray-500">No hay servicios previos.</p>
+    {% endif %}
+  </div>
 
-        <form method="post" id="checkout-form">
-            {% csrf_token %}
+  <!-- Facturación -->
+  <div class="bg-white p-6 rounded shadow">
+    <h2 class="text-xl font-semibold mb-3">Resumen de Facturación</h2>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Costo Habitación</label>
-                <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
-                    <div>Tarifa x noches</div>
-                    <div class="font-semibold">${{ costo_habitacion }}</div>
-                </div>
-            </div>
+    <form method="post" id="checkout-form">
+      {% csrf_token %}
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Servicios</label>
-                <div class="space-y-2">
-                    {{ service_formset.management_form }}
-                    {% for form in service_formset.forms %}
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-2">{{ form.nombre }}</div>
-                        <div>{{ form.precio }}</div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <p class="text-xs text-gray-500 mt-2">Agregue servicios usados por el huésped (min 0).</p>
-            </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Costo Habitación</label>
+        <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+          <div>Tarifa x noches</div>
+          <div class="font-semibold">${{ costo_habitacion }}</div>
+        </div>
+      </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Impuestos (%)</label>
-                {{ form.impuestos }}
-            </div>
+      <!-- Formset de servicios (NUEVO: cantidad y eliminar) -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Servicios</label>
+        {{ service_formset.management_form }}
+        <div class="space-y-2">
+          <div class="grid grid-cols-12 gap-2 text-xs text-gray-600 mb-1">
+            <div class="col-span-6">Servicio</div>
+            <div class="col-span-3 text-right">Precio</div>
+            <div class="col-span-2 text-right">Cantidad</div>
+            <div class="col-span-1 text-center">Del</div>
+          </div>
+          {% for form in service_formset.forms %}
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-6">{{ form.nombre }}</div>
+            <div class="col-span-3">{{ form.precio }}</div>
+            <div class="col-span-2">{{ form.cantidad }}</div>
+            <div class="col-span-1 flex items-center justify-center">{{ form.DELETE }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Agregue servicios usados por el huésped (min 0). Puede ajustar cantidad y marcar eliminar en filas no usadas.</p>
+      </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-                {{ form.notas }}
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Impuestos (%)</label>
+          {{ form.impuestos }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Método de pago</label>
+          {{ form.metodo_pago }}
+        </div>
+      </div>
 
-            <div class="flex items-center justify-between mt-6">
-                <button type="submit" name="calcular_total" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-                    Calcular Total
-                </button>
-                <a href="{% url 'recepcion:seleccionar_huesped' %}" class="text-sm text-gray-600">Volver a la lista</a>
-            </div>
+      <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+        {{ form.notas }}
+      </div>
 
-            {% if resumen_listo %}
-            <hr class="my-6 border-t-2 border-blue-200">
-            <div id="resumen-seccion">
-                <h3 class="text-lg font-semibold mb-2">Resumen a Pagar en Check-Out</h3>
-                <div class="text-sm text-gray-800 space-y-2">
-                    <div class="flex justify-between bg-gray-100 p-2 rounded">
-                        <span>Costo Estancia</span>
-                        <span class="font-medium">${{ pago_estancia|floatformat:2 }} (Ya pagado)</span>
-                    </div>
-                    <div class="flex justify-between p-2">
-                        <span>Subtotal Servicios</span>
-                        <span>${{ total_servicios|floatformat:2 }}</span>
-                    </div>
-                    <div class="flex justify-between p-2">
-                        <span>Impuestos ({{ impuestos_pct }}%)</span>
-                        <span>${{ impuestos_calculados|floatformat:2 }}</span>
-                    </div>
-                    <div class="flex justify-between font-bold text-lg bg-blue-100 text-blue-800 p-3 rounded mt-2">
-                        <span>TOTAL A PAGAR AHORA</span>
-                        <span>${{ total_a_pagar_checkout|floatformat:2 }}</span>
-                    </div>
-                </div>
-                <button type="submit" name="confirmar_checkout" class="mt-4 w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-colors">Confirmar Check-Out y Finalizar Estancia</button>
-            </div>
-            {% endif %}
-        </form>
+      <div class="flex items-center justify-between mt-6">
+        <!-- Botón de previsualización (no persiste) -->
+        <button
+          type="submit"
+          name="calcular_total"
+          value="1"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+          Calcular Total
+        </button>
+        <a href="{% url 'recepcion:seleccionar_huesped' %}" class="text-sm text-gray-600">Volver a la lista</a>
+      </div>
 
-    </div>
+      {% if resumen_listo %}
+      <hr class="my-6 border-t-2 border-blue-200">
+
+      <!-- Si hay servicios nuevos, los listamos -->
+      {% if servicios %}
+      <h3 class="text-lg font-semibold mb-2">Servicios a Registrar</h3>
+      <div class="overflow-x-auto mb-4">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium text-gray-700">Servicio</th>
+              <th class="px-3 py-2 text-right font-medium text-gray-700">Unit</th>
+              <th class="px-3 py-2 text-right font-medium text-gray-700">Cant</th>
+              <th class="px-3 py-2 text-right font-medium text-gray-700">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {% for it in servicios %}
+            <tr>
+              <td class="px-3 py-2">{{ it.nombre }}</td>
+              <td class="px-3 py-2 text-right">${{ it.precio }}</td>
+              <td class="px-3 py-2 text-right">{{ it.cantidad }}</td>
+              <td class="px-3 py-2 text-right">${{ it.total }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      <div id="resumen-seccion">
+        <h3 class="text-lg font-semibold mb-2">Resumen a Pagar en Check-Out</h3>
+        <div class="text-sm text-gray-800 space-y-2">
+          <div class="flex justify-between p-2">
+            <span>Subtotal Servicios</span>
+            <span>${{ total_servicios|floatformat:2 }}</span>
+          </div>
+          <div class="flex justify-between p-2">
+            <span>Impuestos ({{ impuestos_pct }}%)</span>
+            <span>${{ impuestos_calculados|floatformat:2 }}</span>
+          </div>
+          <div class="flex justify-between font-bold text-lg bg-blue-100 text-blue-800 p-3 rounded mt-2">
+            <span>TOTAL A PAGAR AHORA</span>
+            <span>${{ total_a_pagar_checkout|floatformat:2 }}</span>
+          </div>
+        </div>
+
+        <!-- Confirmar: aquí sí persiste servicios + pago y finaliza -->
+        <button
+          type="submit"
+          name="confirmar_checkout"
+          value="1"
+          class="mt-4 w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-colors">
+          Confirmar Check-Out y Finalizar Estancia
+        </button>
+      </div>
+      {% endif %}
+    </form>
+
+  </div>
 </div>
 {% endblock %}

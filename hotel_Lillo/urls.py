@@ -19,8 +19,9 @@ urlpatterns = [
     # para evitar incluir el mismo módulo de URLs (y su app_name) dos veces
     path('huespedes/', vi.listar_huespedes, name='listar_huespedes'),
     path('habitacion/', include('apps.habitaciones.urls')),
-    path('recepcion/', include('apps.recepcion.urls')),
     path('login/', vi.login_view, name='login'),
-    path('logout/', vi.logout_view, name='logout')
+    path('logout/', vi.logout_view, name='logout'),
+    path("recepcion/", include("apps.recepcion.urls")),
+
     
 ]
