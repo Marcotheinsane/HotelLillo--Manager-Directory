@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('reservas', '0002_remove_registroreservas_estado_habitacion_and_more'),
+        ('reservas', '0001_initial'),
     ]
 
     operations = [
