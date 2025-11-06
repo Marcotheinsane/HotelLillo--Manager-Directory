@@ -1,6 +1,10 @@
+from datetime import date
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone # Usaremos timezone para la fecha actual
 from django.db.models import Q # Para construir consultas complejas
+from django.contrib import messages
+from decimal import Decimal
+
 
 # models
 from apps.reservas.models import RegistroReservas
@@ -9,6 +13,91 @@ from apps.habitaciones.models import Habitacion
 
 # forms
 from .forms import CheckoutForm, ServiceFormSet
+
+# =============== CHECK-IN ===================
+
+def seleccionar_reserva_checkin(request):
+    """
+    Lista de reservas confirmadas que pueden hacer check-in hoy o antes (no finalizadas ni canceladas).
+    """
+    from django.utils import timezone
+    hoy = timezone.now().date()
+
+    pendientes_checkin = (
+        RegistroReservas.objects.filter(
+            estado_reserva='confirmada',
+            fecha_check_in__lte=hoy
+        )
+        .exclude(estado_reserva__in=['cancelada', 'finalizada'])
+        .select_related('Huespedes', 'Habitaciones')
+        .order_by('fecha_check_in')
+    )
+
+    return render(
+        request,
+        'recepcion/seleccionar_reserva_checkin.html',
+        {'pendientes_checkin': pendientes_checkin},
+    )
+
+
+def checkin_huesped(request, reserva_id):
+    """
+    Permite registrar la llegada (check-in) de un huésped.
+    Marca la reserva como 'en_progreso' y la habitación como 'OCUPADA'.
+    """
+    from django.utils import timezone
+    reserva = get_object_or_404(RegistroReservas, pk=reserva_id)
+
+    # Solo reservas confirmadas pueden hacer check-in
+    if reserva.estado_reserva != 'confirmada':
+        messages.warning(request, "Esta reserva no puede hacer check-in.")
+        return redirect('recepcion:seleccionar_reserva_checkin')
+
+    huesped = reserva.Huespedes
+    habitacion = reserva.Habitaciones
+
+    # Calcular noches y costo
+    noches = max((reserva.fecha_check_out - reserva.fecha_check_in).days, 1)
+    tarifa = getattr(habitacion, 'tarifa', Decimal('0.00'))
+    total_estancia = tarifa * noches
+
+    if request.method == 'POST':
+        reserva.estado_reserva = 'en_progreso'
+        reserva.fecha_check_in = timezone.now().date()
+        reserva.pago_estancia = total_estancia
+        reserva.save()
+
+        habitacion.estado = 'OCUPADA'
+        habitacion.save()
+
+        messages.success(request, f"Check-in de {huesped.nombre} realizado exitosamente.")
+        return redirect('recepcion:seleccionar_reserva_checkin')
+
+    contexto = {
+        'reserva': reserva,
+        'huesped': huesped,
+        'habitacion': habitacion,
+        'noches': noches,
+        'tarifa': tarifa,
+        'total_estancia': total_estancia,
+    }
+    return render(request, 'recepcion/checkin.html', contexto)
+
+def seleccionar_reserva_checkin(request):
+    """
+    Muestra las reservas pendientes de check-in (fecha de entrada = hoy)
+    que aún no están finalizadas ni canceladas.
+    """
+    hoy = date.today()
+
+    pendientes_checkin = RegistroReservas.objects.filter(
+        estado_reserva__in=["pendiente", "confirmada"],  # Reservas activas
+        fecha_check_in__lte=hoy,   # Ya pueden hacer check-in
+        fecha_check_out__gt=hoy    # Aún no salieron
+    ).select_related("Huespedes", "Habitaciones")
+
+    context = {"pendientes_checkin": pendientes_checkin}
+    return render(request, "recepcion/seleccionar_reserva_checkin.html", context)
 
 
 def seleccionar_huesped(request):

@@ -36,7 +36,7 @@ def consulta_habitaciones(request):
             # ¿Está ocupada hoy?
             reserva_activa = RegistroReservas.objects.filter(
                 Habitaciones=h,
-                estado_reserva='confirmada',
+                estado_reserva__in=['confirmada', 'en_progreso'],
                 fecha_check_in__lte=hoy,
                 fecha_check_out__gt=hoy
             ).first()
