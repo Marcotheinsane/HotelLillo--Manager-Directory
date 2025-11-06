@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import seleccionar_huesped, checkout_huesped
+
 
 app_name = 'recepcion'
 

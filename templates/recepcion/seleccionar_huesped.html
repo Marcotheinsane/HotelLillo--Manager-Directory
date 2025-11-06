@@ -3,28 +3,66 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-semibold mb-4">Seleccionar huésped para Check-Out</h1>
+  <div class="flex items-end justify-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="text-2xl font-semibold">Seleccionar huésped para Check-Out</h1>
+      <p class="text-sm text-gray-500">Solo se muestran reservas activas (no finalizadas ni canceladas).</p>
+    </div>
+    <a href="{% url 'recepcion:seleccionar_huesped' %}" class="text-sm text-blue-700 hover:underline">Actualizar lista</a>
+  </div>
 
-    {% if activos %}
+  {% if activos %}
+    {% now "Y-m-d" as hoy_ymd %}
+    {% now "U" as ahora_ts %}
+
     <div class="grid gap-4">
-        {% for reserva in activos %}
-        <div class="bg-white p-4 rounded shadow flex items-center justify-between">
-            <div>
-                <p class="font-medium">{{ reserva.Huespedes.nombre }} {{ reserva.Huespedes.apellido }}</p>
-                <p class="text-sm text-gray-500">Habitación: {{ reserva.Habitaciones.numero }} — Tipo: {{ reserva.Habitaciones.tipo }}</p>
-                <p class="text-sm text-gray-500">Check-in: {{ reserva.fecha_check_in }} • Check-out: {{ reserva.fecha_check_out }}</p>
-            </div>
-            <div class="space-x-2">
-                <a href="{% url 'recepcion:checkout_huesped' reserva.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Realizar Check-Out</a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="bg-white p-6 rounded shadow">
-        <p class="text-gray-600">No hay huéspedes activos en este momento.</p>
-    </div>
-    {% endif %}
+      {% for reserva in activos %}
+        {% with checkout_ymd=reserva.fecha_check_out|date:"Y-m-d" checkout_ts=reserva.fecha_check_out|date:"U" %}
+          <div class="bg-white p-4 rounded shadow flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <p class="font-medium truncate">
+                  {{ reserva.Huespedes.nombre }} {{ reserva.Huespedes.apellido }}
+                </p>
 
+                <span class="px-2 py-0.5 text-xs rounded
+                  {% if checkout_ymd == hoy_ymd %} bg-yellow-100 text-yellow-800
+                  {% elif checkout_ts < ahora_ts %} bg-red-100 text-red-800
+                  {% else %} bg-emerald-100 text-emerald-800
+                  {% endif %}">
+                  {% if checkout_ymd == hoy_ymd %}Sale hoy
+                  {% elif checkout_ts < ahora_ts %}Vencida
+                  {% else %}Alojado
+                  {% endif %}
+                </span>
+              </div>
+
+              <p class="text-sm text-gray-500">
+                Habitación: <span class="font-medium">{{ reserva.Habitaciones.numero }}</span>
+                — Tipo: {{ reserva.Habitaciones.tipo }}
+              </p>
+
+              <p class="text-sm text-gray-500">
+                Check-in: {{ reserva.fecha_check_in|date:"d/m/Y" }}
+                • Check-out: {{ reserva.fecha_check_out|date:"d/m/Y" }}
+              </p>
+            </div>
+
+            <div class="shrink-0">
+              <a
+                href="{% url 'recepcion:checkout_huesped' reserva.id %}"
+                class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                Realizar Check-Out
+              </a>
+            </div>
+          </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white p-6 rounded shadow">
+      <p class="text-gray-600">No hay huéspedes activos en este momento.</p>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}
