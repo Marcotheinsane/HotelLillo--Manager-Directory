@@ -1,7 +1,6 @@
 from django import forms
 from .models import Habitacion
 
-
 class HabitacionForm(forms.ModelForm):
     class Meta:
         model = Habitacion
@@ -9,47 +8,36 @@ class HabitacionForm(forms.ModelForm):
 
         widgets = {
             'numero': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300',
-                'placeholder': 'Ingrese el número de habitación'
+                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl',
+                'placeholder': 'Número de habitación'
             }),
             'tipo': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300'
+                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl'
             }),
             'capacidad': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300',
+                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl',
                 'placeholder': 'Capacidad máxima'
             }),
-            'tarifa': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300',
-                'placeholder': 'Tarifa por noche'
+            'tarifa': forms.NumberInput(attrs={   # ✅ AQUÍ EL CAMBIO
+                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl',
+                'placeholder': 'Ej: 50000',
+                'step': '0.01',  # ✅ Permite decimales si usas DecimalField
             }),
             'comodidades': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300',
+                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl',
                 'rows': 3,
-                'placeholder': 'Ejemplo: Wi-Fi, TV, baño privado...'
+                'placeholder': 'WiFi, TV, baño privado...'
             }),
             'estado': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl '
-                         'focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all '
-                         'duration-200 hover:border-gray-300'
+                'class': 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl'
             }),
         }
 
         labels = {
-            'numero': 'Número de Habitación',
+            'numero': 'Número',
             'tipo': 'Tipo de Habitación',
-            'capacidad': 'Capacidad (personas)',
+            'capacidad': 'Capacidad',
             'tarifa': 'Tarifa (CLP)',
             'comodidades': 'Comodidades',
-            'estado': 'Estado Actual',
+            'estado': 'Estado'
         }

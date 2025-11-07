@@ -16,7 +16,7 @@ class   Habitacion(models.Model):
     numero = models.IntegerField(unique=True)
     tipo = models.CharField(max_length=50, choices=TIPO_CHOICES, default='SIMPLE')
     capacidad = models.PositiveIntegerField()
-    tarifa = models.PositiveIntegerField()
+    tarifa = models.DecimalField(max_digits=10, decimal_places=2)
     comodidades = models.TextField()
     estado = models.CharField(
         max_length=15,
@@ -28,12 +28,10 @@ class   Habitacion(models.Model):
         return f"Habitación {self.numero} ({self.tipo})"
 
     def clean(self):
-        #validaciones personalizadas para el modelo Habitacion
-        # Validar Capacidad 
-        if self.capacidad < 1 or self.capacidad > 10:
-            raise ValidationError("La capacidad debe estar entre 1 y 10 personas.")
+        # Validar capacidad
+        if self.capacidad is None or self.capacidad < 1 or self.capacidad > 10:
+            raise ValidationError({'capacidad': "La capacidad debe estar entre 1 y 10 personas."})
 
-        # Validar Tarifa 
-        if self.tarifa <= 0:
-            raise ValidationError({'tarifa': "La tarifa debe ser mayor que cero."})
-    
+        # Validar tarifa
+        if self.tarifa is None or self.tarifa <= 0:
+            raise ValidationError({'tarifa': "La tarifa debe ser mayor que cero y no puede estar vacía."})
