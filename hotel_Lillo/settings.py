@@ -81,6 +81,7 @@ WSGI_APPLICATION = 'hotel_Lillo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASE_URL = os.getenv("DATABASE_URL")
+print("DATABASE_URL RECIBIDA POR DJANGO:", os.environ.get("DATABASE_URL"))
 
 if DATABASE_URL:
     DATABASES = {
