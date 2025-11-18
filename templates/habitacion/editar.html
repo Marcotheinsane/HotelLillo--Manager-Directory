@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
+{% block title %}Editar Habitación - Hotel Lillo{% endblock %}
+
 {% block content %}
 <div class="max-w-2xl mx-auto bg-white p-8 mt-10 shadow-lg rounded-2xl">
-  <h2 class="text-2xl font-bold mb-6 text-gray-800">Registrar nueva habitación</h2>
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Editar habitación {{ habitacion.numero }}</h2>
   <form method="post" class="space-y-5">
     {% csrf_token %}
     {{ form.as_p }}
     <div class="flex gap-3">
       <button type="submit"
-        class="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition">
-        Guardar Habitación
-      </button>
+        class="flex-1 bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-700 transition">Guardar cambios</button>
       <a href="{% url 'consultar_habitaciones' %}" class="flex-1 text-center bg-gray-200 py-3 rounded-xl">Cancelar</a>
     </div>
   </form>

@@ -1,12 +1,10 @@
 # apps/recepcion/views.py
+
 from decimal import Decimal
 from django.db.models import Q
-from datetime import date
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib import messages
-from decimal import Decimal
-
 
 # Models del proyecto
 from apps.reservas.models import RegistroReservas
@@ -14,64 +12,69 @@ from apps.habitaciones.models import Habitacion
 from apps.servicios.models import ServicioCatalogo, ServicioConsumido, Pago
 from .forms import ServicioFormSet, PagoForm
 
-#check in
-
-IVA_CHILE= Decimal("10.0")
+IVA_CHILE = Decimal("10.0")
 
 def seleccionar_reserva_checkin(request):
-    """
-    Lista de reservas confirmadas que pueden hacer check-in hoy o antes (no finalizadas ni canceladas).
-    """
-    from django.utils import timezone
+    #Muestra SOLO las reservas que pueden hacer check-in HOY.
+    # No permite check-in adelantado ni atrasado.
     hoy = timezone.now().date()
 
     pendientes_checkin = (
         RegistroReservas.objects.filter(
             estado_reserva='confirmada',
-            fecha_check_in__lte=hoy
+            fecha_check_in=hoy
         )
         .exclude(estado_reserva__in=['cancelada', 'finalizada'])
         .select_related('Huespedes', 'Habitaciones')
         .order_by('fecha_check_in')
     )
 
-    return render(
-        request,
-        'recepcion/seleccionar_reserva_checkin.html',
-        {'pendientes_checkin': pendientes_checkin},
-    )
+    context = {"pendientes_checkin": pendientes_checkin}
+    return render(request, "recepcion/seleccionar_reserva_checkin.html", context)
 
 
 def checkin_huesped(request, reserva_id):
-    """
-    Permite registrar la llegada (check-in) de un huésped.
-    Marca la reserva como 'en_progreso' y la habitación como 'OCUPADA'.
-    """
+    
+    # Realiza el check-in del huésped SOLO si hoy coincide con su fecha reservada.
+    # Marca reserva como 'en_progreso' y habitación como 'OCUPADA'.
     reserva = get_object_or_404(RegistroReservas, pk=reserva_id)
+    hoy = timezone.now().date()
 
     # Solo reservas confirmadas pueden hacer check-in
     if reserva.estado_reserva != 'confirmada':
         messages.warning(request, "Esta reserva no puede hacer check-in.")
         return redirect('recepcion:seleccionar_reserva_checkin')
 
+    # Validar check-in solo en el día exacto
+    if reserva.fecha_check_in != hoy:
+        messages.error(
+            request,
+            f"No se puede hacer check-in. "
+            f"La fecha reservada es {reserva.fecha_check_in}."
+        )
+        return redirect('recepcion:seleccionar_reserva_checkin')
+
     huesped = reserva.Huespedes
     habitacion = reserva.Habitaciones
 
-    # Calcular noches y costos 
+    # Calcular noches y costos usando las fechas originales de la reserva
     noches = max((reserva.fecha_check_out - reserva.fecha_check_in).days, 1)
-    tarifa = getattr(habitacion, 'tarifa', Decimal('00.000'))
+    tarifa = getattr(habitacion, 'tarifa', Decimal('0.00'))
     total_estancia = tarifa * noches
 
     if request.method == 'POST':
+        # No se cambia fecha_check_in (esa es la reservada)
         reserva.estado_reserva = 'en_progreso'
-        reserva.fecha_check_in = timezone.now().date()
         reserva.pago_estancia = total_estancia
         reserva.save()
 
         habitacion.estado = 'OCUPADA'
         habitacion.save()
 
-        messages.success(request, f"Check-in de {huesped.nombre} realizado exitosamente.")
+        messages.success(
+            request,
+            f"Check-in de {huesped.nombre} realizado exitosamente."
+        )
         return redirect('recepcion:seleccionar_reserva_checkin')
 
     contexto = {
@@ -84,30 +87,13 @@ def checkin_huesped(request, reserva_id):
     }
     return render(request, 'recepcion/checkin.html', contexto)
 
-def seleccionar_reserva_checkin(request):
-    """
-    Muestra las reservas pendientes de check-in (fecha de entrada = hoy)
-    que aún no están finalizadas ni canceladas.
-    """
-    hoy = date.today()
-
-    pendientes_checkin = RegistroReservas.objects.filter(
-        estado_reserva__in=["pendiente", "confirmada"],  # Reservas activas
-        fecha_check_in__lte=hoy,   # Ya pueden hacer check-in
-        fecha_check_out__gt=hoy    # Aún no salieron
-    ).select_related("Huespedes", "Habitaciones")
-
-    context = {"pendientes_checkin": pendientes_checkin}
-    return render(request, "recepcion/seleccionar_reserva_checkin.html", context)
-
 
 def seleccionar_huesped(request):
     """
-    Lista de huéspedes actualmente alojados (check-in activo).
-    Criterio: reservas con fecha_check_in <= hoy <= fecha_check_out,
-    excluyendo finalizadas/canceladas.
+    Lista huéspedes actualmente alojados (check-in ya hecho).
     """
     hoy = timezone.now().date()
+
     activos = (
         RegistroReservas.objects.filter(
             fecha_check_in__lte=hoy,
@@ -120,11 +106,12 @@ def seleccionar_huesped(request):
 
     return render(request, "recepcion/seleccionar_huesped.html", {"activos": activos})
 
+
 def checkout_huesped(request, reserva_id):
     reserva = get_object_or_404(RegistroReservas, pk=reserva_id)
     habitacion = reserva.Habitaciones
-    noches = max((reserva.fecha_check_out - reserva.fecha_check_in).days, 1)
 
+    noches = max((reserva.fecha_check_out - reserva.fecha_check_in).days, 1)
     tarifa = getattr(habitacion, "tarifa", Decimal("0"))
     subtotal_habitacion = tarifa * noches
 
@@ -134,7 +121,6 @@ def checkout_huesped(request, reserva_id):
     form_pago = PagoForm(request.POST or None)
     formset_servicios = ServicioFormSet(request.POST or None, queryset=ServicioConsumido.objects.none())
 
-    # Variables para mostrar en template si se presiona "Calcular"
     resumen_listo = False
     subtotal_nuevos = Decimal("0.00")
     subtotal_total = subtotal_habitacion + total_guardados
@@ -143,7 +129,7 @@ def checkout_huesped(request, reserva_id):
 
     if request.method == "POST" and form_pago.is_valid() and formset_servicios.is_valid():
 
-        # Si se presionó "Calcular Total"
+        # Calcular total
         if "calcular_total" in request.POST:
             for form in formset_servicios:
                 sc = form.cleaned_data.get("servicio_catalogo")
@@ -156,8 +142,9 @@ def checkout_huesped(request, reserva_id):
             total_final = subtotal_total + iva
             resumen_listo = True
 
-        # Si se presionó "Confirmar Check-Out"
+        # Confirmar Check-Out
         elif "confirmar_checkout" in request.POST:
+            # Guardar nuevos servicios
             for form in formset_servicios:
                 sc = form.cleaned_data.get("servicio_catalogo")
                 cantidad = form.cleaned_data.get("cantidad") or 1
@@ -189,7 +176,7 @@ def checkout_huesped(request, reserva_id):
             habitacion.estado = "DISPONIBLE"
             habitacion.save()
 
-            messages.success(request, f"✅ Check-Out completado. Total pagado: ${total_final}")
+            messages.success(request, f" Check-Out completado. Total pagado: ${total_final}")
             return redirect("recepcion:seleccionar_huesped")
 
     context = {
