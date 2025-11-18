@@ -1,0 +1,5 @@
+[build]
+builder = "python"
+
+[start]
+cmd = "gunicorn hotel_Lillo.wsgi:application"
