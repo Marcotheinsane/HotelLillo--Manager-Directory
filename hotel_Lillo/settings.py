@@ -83,6 +83,7 @@ WSGI_APPLICATION = 'hotel_Lillo.wsgi.application'
 DATABASE_URL = os.getenv("DATABASE_URL")
 print("DATABASE_URL RECIBIDA POR DJANGO:", os.environ.get("DATABASE_URL"))
 
+#Esta BD es la que soporta railway
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
@@ -92,7 +93,7 @@ if DATABASE_URL:
         )
     }
 else:
-    # Modo LOCAL
+    #se establece esta bd para uso Modo LOCAL
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -154,3 +155,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+#Como odio a esta maldita institucion de mierda por la chucha que mierda muro de la gratitud por las wea que les pagan chanchas comunistas  
