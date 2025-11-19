@@ -6,7 +6,9 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-g-ch*_%uafz2uwwwrs+)*i@uh!6ahkr(azec11uq48r4aj_#0w'
-DEBUG = False
+
+#al usar localmente cambiar DEBUG a TRue de lo contrario no servira los archivos o metodos estaticos de forma correcta
+DEBUG = os.getenv("RAILWAY_ENVIRONMENT_NAME") is None
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
