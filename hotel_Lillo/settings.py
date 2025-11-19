@@ -89,6 +89,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+#Django es muy estricto y no admite token de seguridad al desplegar una app en railway por ejemplo 
+CSRF_TRUSTED_ORIGINS = ["https://*.railway.app"]
+
+
 LANGUAGE_CODE = 'es-es'
 TIME_ZONE = 'UTC'
 USE_I18N = True
