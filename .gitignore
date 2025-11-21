@@ -137,8 +137,8 @@ db.sqlite3-journal
 # Media files (uploads)
 media/
 
-# Static files (collected)
-staticfiles/
+# Static files (collected) prueba para ver si railway no lo ignora y lo usa
+#staticfiles/
 
 # IDE files
 .vscode/
