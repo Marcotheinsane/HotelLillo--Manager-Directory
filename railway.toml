@@ -1,0 +1,15 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "gunicorn hotel_Lillo.wsgi:application"
+
+[phases.setup]
+commands = [
+  "pip install -r requirements.txt"
+]
+
+[phases.build]
+commands = [
+  "python manage.py collectstatic --noinput"
+]
