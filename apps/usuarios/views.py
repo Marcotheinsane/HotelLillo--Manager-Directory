@@ -9,8 +9,11 @@ from django.contrib.auth.models import User
 from .models import Perfil_empleado, Huesped
 from .forms import HuespedForm, LoginForm, RegistroEmpleadoForm
 # Create your views here.
+from apps.usuarios.decorators import solo_no_demo
+
 
 #crud basico de huesedes
+@solo_no_demo
 def crear_huesped(request):
     if request.method == 'POST':
         form = HuespedForm(request.POST)
@@ -33,6 +36,7 @@ def listar_huespedes(request):
 
     return render(request, 'huesped/listar_huespedes.html', {'huespedes': huespedes})
 
+@solo_no_demo
 def editar_huesped(request, pk):
     huesped = get_object_or_404(Huesped, pk=pk)  # Busca el huésped o lanza 404 si no existe cualquiera de las 2 ocurrre
 

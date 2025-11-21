@@ -1,11 +1,13 @@
 from django.db.models import Q
 from django.core.paginator import Paginator
 from datetime import date
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 
 from .forms import HabitacionForm
 from .models import Habitacion
-from apps.reservas.models import RegistroReservas  # se importa Necesariamente para detectar reservas
+from apps.reservas.models import RegistroReservas
+from apps.usuarios.decorators import solo_no_demo
 
 
 def consulta_habitaciones(request):
@@ -18,22 +20,18 @@ def consulta_habitaciones(request):
 
     if q:
         num_q = Q()
-        if q.isdigit():
+        if str(q).isdigit():
             num_q = Q(numero=int(q))
         qs = qs.filter(num_q | Q(tipo__icontains=q) | Q(comodidades__icontains=q))
     if tipo:
         qs = qs.filter(tipo__icontains=tipo)
 
-    # Generar datos con lógica de ocupada / disponible / reservada / mantención
     habitaciones_data = []
     for h in qs:
-        # Si está en mantención, prioridad absoluta nesario par a que no de errores
         if h.estado == 'MANTENCION':
             estado_real = 'Mantención'
             proxima = '—'
-
         else:
-            # ¿Está ocupada hoy?
             reserva_activa = RegistroReservas.objects.filter(
                 Habitaciones=h,
                 estado_reserva__in=['confirmada', 'en_progreso'],
@@ -41,7 +39,6 @@ def consulta_habitaciones(request):
                 fecha_check_out__gt=hoy
             ).first()
 
-            # ¿Tiene reserva futura?
             reserva_futura = RegistroReservas.objects.filter(
                 Habitaciones=h,
                 estado_reserva='confirmada',
@@ -59,6 +56,7 @@ def consulta_habitaciones(request):
                 proxima = '—'
 
         habitaciones_data.append({
+            'id': h.id,
             'numero': h.numero,
             'tipo': h.get_tipo_display(),
             'capacidad': h.capacidad,
@@ -68,11 +66,9 @@ def consulta_habitaciones(request):
             'proxima_reserva': proxima
         })
 
-    # por estado después de calcular estado_real
     if estado_filtro:
         habitaciones_data = [h for h in habitaciones_data if h['estado'].upper() == estado_filtro.upper()]
 
-    #  Paginación es como una lista ya procesada
     paginator = Paginator(habitaciones_data, 10)
     page_obj = paginator.get_page(request.GET.get('page'))
 
@@ -86,12 +82,44 @@ def consulta_habitaciones(request):
     return render(request, 'habitacion/consulta.html', context)
 
 
+@solo_no_demo
 def registrar_habitacion(request):
     if request.method == 'POST':
         form = HabitacionForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('consultar_habitaciones')  # Cambiado para redirigir a consulta
+            messages.success(request, 'Habitación creada correctamente.')
+            return redirect('consultar_habitaciones')
     else:
         form = HabitacionForm()
     return render(request, 'habitacion/registrar.html', {'form': form})
+
+
+@solo_no_demo
+def editar_habitacion(request, pk):
+    habitacion = get_object_or_404(Habitacion, pk=pk)
+    if request.method == 'POST':
+        form = HabitacionForm(request.POST, instance=habitacion)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Habitación actualizada correctamente.')
+            return redirect('consultar_habitaciones')
+    else:
+        form = HabitacionForm(instance=habitacion)
+    return render(request, 'habitacion/editar.html', {'form': form, 'habitacion': habitacion})
+
+
+@solo_no_demo
+def eliminar_habitacion(request, pk):
+    habitacion = get_object_or_404(Habitacion, pk=pk)
+    tiene_reservas = RegistroReservas.objects.filter(Habitaciones=habitacion).exists()
+    if request.method == 'POST':
+        if tiene_reservas:
+            habitacion.estado = 'MANTENCION'
+            habitacion.save()
+            messages.warning(request, 'La habitación tiene reservas asociadas. Se marcó como Mantención (anulada).')
+        else:
+            habitacion.delete()
+            messages.success(request, 'Habitación eliminada correctamente.')
+        return redirect('consultar_habitaciones')
+    return render(request, 'habitacion/confirmar_eliminar.html', {'habitacion': habitacion, 'tiene_reservas': tiene_reservas})

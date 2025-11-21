@@ -7,8 +7,10 @@ from datetime import datetime
 from apps.reservas.models import RegistroReservas
 from .forms import FormularioReservas
 from apps.habitaciones.models import Habitacion
+from apps.usuarios.decorators import solo_no_demo
 
 
+@solo_no_demo
 def Registrar_reserva(request):
     if request.method == "POST":
         form = FormularioReservas(request.POST)
@@ -28,6 +30,7 @@ def listar_reservas(request):
     return render(request, 'Reservas/listar_reservas.html', {'reservas': reservas})
 
 
+@solo_no_demo
 def confirmar_reserva(request, pk):
     reserva = get_object_or_404(RegistroReservas, pk=pk)
     if reserva.estado_reserva == 'pendiente':
@@ -39,6 +42,7 @@ def confirmar_reserva(request, pk):
     return redirect('reservas:listar_reservas')
 
 
+@solo_no_demo
 def cancelar_reserva(request, pk):
     reserva = get_object_or_404(RegistroReservas, pk=pk)
     if reserva.estado_reserva != 'finalizada':
@@ -48,6 +52,7 @@ def cancelar_reserva(request, pk):
     return redirect('reservas:listar_reservas')
 
 
+@solo_no_demo
 def editar_reserva(request, pk):
     reserva = get_object_or_404(RegistroReservas, pk=pk)
 

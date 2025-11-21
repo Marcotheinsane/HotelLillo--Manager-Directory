@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from .validators import validar_rut, validar_telefono
 
 # Create your models here.
 
@@ -21,6 +23,18 @@ class Perfil_empleado(models.Model):
     def __str__(self):
         return f"{self.perfil_empleado} - {self.nombre} - {self.rol}"
 
+    def clean(self):
+        errors = {}
+        if self.nombre and len(self.nombre.strip()) < 2:
+            errors['nombre'] = 'El nombre es muy corto.'
+        if self.rut:
+            try:
+                validar_rut(self.rut)
+            except ValidationError as e:
+                errors['rut'] = e.messages
+        if errors:
+            raise ValidationError(errors)
+
 
 class Huesped(models.Model):
     TIPO_DOCUMENTO = (
@@ -39,3 +53,22 @@ class Huesped(models.Model):
 
     def __str__(self) -> str:
         return f"{self.nombre} {self.apellido}"
+
+    def clean(self):
+        errors = {}
+        if self.nombre and len(self.nombre.strip()) < 2:
+            errors['nombre'] = 'El nombre es muy corto.'
+        if self.apellido and len(self.apellido.strip()) < 2:
+            errors['apellido'] = 'El apellido es muy corto.'
+        if self.tipo_documento == 'rut' and self.numero_documento:
+            try:
+                validar_rut(self.numero_documento)
+            except ValidationError as e:
+                errors['numero_documento'] = e.messages
+        if self.telefono:
+            try:
+                validar_telefono(self.telefono)
+            except ValidationError as e:
+                errors['telefono'] = e.messages
+        if errors:
+            raise ValidationError(errors)

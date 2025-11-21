@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import Huesped, Perfil_empleado
+from django.core.exceptions import ValidationError
+from .validators import validar_rut, validar_telefono
 
 class HuespedForm(forms.ModelForm):
     class Meta:
@@ -40,6 +42,12 @@ class HuespedForm(forms.ModelForm):
             raise forms.ValidationError("El número de documento es obligatorio.")
         if len(numero) < 5:
             raise forms.ValidationError("El número de documento es demasiado corto.")
+        tipo = self.cleaned_data.get('tipo_documento')
+        if tipo == 'rut':
+            try:
+                validar_rut(numero)
+            except ValidationError as e:
+                raise forms.ValidationError(e.messages)
         return numero
 
     def clean_email(self):
@@ -54,10 +62,10 @@ class HuespedForm(forms.ModelForm):
         telefono = self.cleaned_data.get('telefono', '').strip()
         if not telefono:
             raise forms.ValidationError("El número de teléfono es obligatorio.")
-        if not telefono.replace("+", "").replace(" ", "").isdigit():
-            raise forms.ValidationError("El número de teléfono solo debe contener números.")
-        if len(telefono) < 8:
-            raise forms.ValidationError("El teléfono debe tener al menos 8 dígitos.")
+        try:
+            validar_telefono(telefono)
+        except ValidationError as e:
+            raise forms.ValidationError(e.messages)
         return telefono
 
 class LoginForm(AuthenticationForm):
@@ -139,3 +147,13 @@ class RegistroEmpleadoForm(UserCreationForm):
                 rut=self.cleaned_data['rut']
             )
         return user
+
+    def clean_rut(self):
+        rut = self.cleaned_data.get('rut', '').strip()
+        if not rut:
+            raise forms.ValidationError('El RUT es obligatorio.')
+        try:
+            validar_rut(rut)
+        except ValidationError as e:
+            raise forms.ValidationError(e.messages)
+        return rut

@@ -13,6 +13,7 @@ from apps.reservas.models import RegistroReservas
 from apps.habitaciones.models import Habitacion
 from apps.servicios.models import ServicioCatalogo, ServicioConsumido, Pago
 from .forms import ServicioFormSet, PagoForm
+from apps.usuarios.decorators import solo_no_demo
 
 #check in
 
@@ -42,6 +43,7 @@ def seleccionar_reserva_checkin(request):
     )
 
 
+@solo_no_demo
 def checkin_huesped(request, reserva_id):
     """
     Permite registrar la llegada (check-in) de un huésped.
@@ -120,6 +122,7 @@ def seleccionar_huesped(request):
 
     return render(request, "recepcion/seleccionar_huesped.html", {"activos": activos})
 
+@solo_no_demo
 def checkout_huesped(request, reserva_id):
     reserva = get_object_or_404(RegistroReservas, pk=reserva_id)
     habitacion = reserva.Habitaciones
